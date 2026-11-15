@@ -1,0 +1,23 @@
+# Python environments and generated files
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local credentials and configuration
+.env
+.env.*
+!.env.example
+.streamlit/secrets.toml
+
+# Generated datasets
+data/raw/
+data/processed/
+
+# Editor and OS files
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
