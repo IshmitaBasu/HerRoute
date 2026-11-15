@@ -1,10 +1,10 @@
 # Assumptions, safeguards and pilot
 
-## Provisional pilot
+## Pilot selection
 
-Use a small rectangular area around Alexanderplatz, central Berlin, as the **candidate**, bounded by WGS84 longitude 13.395–13.430 and latitude 52.515–52.530. This is an operational bounding box, not an administrative boundary. It is a manageable urban area with transit access; it is not a claim that its data are complete or representative of all Berlin.
+Select a small rectangular area around Alexanderplatz, central Berlin, bounded by WGS84 longitude 13.395–13.430 and latitude 52.515–52.530. This is an operational bounding box, not an administrative boundary. It is a manageable urban area with transit access; it is not a claim that its data are complete or representative of all Berlin.
 
-The source catalogs describe Berlin-wide public-lighting data and VBB transit data, but no street-level extraction or quantitative coverage comparison has been performed. The pilot is therefore **not yet validated or final**. In Phase 2, retrieve all three sources inside the box plus a documented processing buffer, inspect counts, spatial distribution, connectivity and source metadata, and compare at least one alternative candidate if the data are sparse or disconnected. Record the evidence and final bounds before using the area for evaluation. A missing light is not proof that a street is unlit.
+On 15 November 2026, extracts showed lights and stops in each cell of a 3×3 grid across the pilot. The largest weak graph component contains 4,259 of 4,414 pilot nodes (96.5%); 155 nodes lie elsewhere. This is adequate to proceed with the pilot, subject to Phase 3 investigation of connectivity and boundary effects. Endpoint handling must reject unreachable journeys; weak connectivity alone does not establish a valid directed route. See [source discovery](data_sources.md) for counts and limitations. A missing light is not proof that a street is unlit.
 
 ## Initial modelling choices
 

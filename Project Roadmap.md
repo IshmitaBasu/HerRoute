@@ -38,7 +38,7 @@ HerRoute will not use crime predictions, user location history, or personal prof
 - It **will** show each route's distance and estimated walking time.
 - It **will** show estimated street-segment coverage by *mapped streetlights* and transit-stop proximity.
 - It **will** expose the assumptions used to estimate coverage, along with missing-data warnings.
-- It **will** use open-source Python tooling and a small GCP/BigQuery analytics layer.
+- It **will** use open-source Python tooling and a small AWS analytics layer.
 - It **will** include automated data validation, tests, documentation, and a public demo.
 
 ### 1.5 Features that will not be built in the initial MVP
@@ -54,7 +54,7 @@ Real-time lamp operational status, predictive personal-safety scores, real-time 
 | 1. Scope & design | 1 | 8–10 h | Requirements, scope, architecture, wireframes |
 | 2. Data ingestion | 2 | 10–12 h | Repeatable ingestion of three public data sources |
 | 3. Geospatial ETL | 3 | 12–14 h | Clean network and segment-level infrastructure metrics |
-| 4. Cloud & modelling | 4 | 10–12 h | Tested BigQuery and dbt analytical models |
+| 4. Cloud & modelling | 4 | 10–12 h | Tested AWS Athena and dbt analytical models |
 | 5. Routing algorithm | 5 | 16–20 h | Shortest-path and lighting-aware route comparison |
 | 6. Interactive app | 6 | 12–15 h | Functional local Streamlit demo |
 | 7. Testing & automation | 7 | 12–15 h | Automated tests, CI, scheduled data-refresh workflow |
@@ -69,7 +69,7 @@ Real-time lamp operational status, predictive personal-safety scores, real-time 
 flowchart LR
     W1["Week 1<br/>Scope & design"] --> W2["Week 2<br/>Data ingestion"]
     W2 --> W3["Week 3<br/>Geospatial ETL"]
-    W3 --> W4["Week 4<br/>BigQuery + dbt"]
+    W3 --> W4["Week 4<br/>AWS Athena + dbt"]
     W4 --> W5["Week 5<br/>Route algorithms"]
     W5 --> W6["Week 6<br/>Streamlit MVP"]
     W6 --> W7["Week 7<br/>CI/CD + monitoring"]
@@ -108,8 +108,9 @@ flowchart TD
     end
 
     subgraph CLOUD["Cloud analytics"]
-        BQ["BigQuery GIS<br/>Staging + spatial analytics"]
-        DBT["dbt Core<br/>Documented marts + tests"]
+        S3["Amazon S3 + Glue Catalog<br/>Versioned staging data"]
+        ATH["Amazon Athena<br/>Spatial analytics"]
+        DBT["dbt Core + dbt-athena<br/>Documented marts + tests"]
     end
 
     subgraph APP["Route product"]
@@ -122,7 +123,7 @@ flowchart TD
     O --> ING
     T --> ING
     ING --> RAW --> GIS
-    GIS --> BQ --> DBT
+    GIS --> S3 --> ATH --> DBT
     GIS --> FEAT
     DBT --> FEAT
     FEAT --> ALG --> UI
@@ -137,8 +138,8 @@ flowchart TD
 | Source retrieval | Python, `requests`, OSMnx, pandas | Public data ingestion |
 | Spatial transformation | GeoPandas, Shapely, PyProj | Geometries, distances, joins, validation |
 | Storage | Local GeoParquet / GraphML | Low-cost, reproducible source and routing artifacts |
-| Cloud analytics | Google BigQuery GIS | Spatial queries and cloud data engineering experience |
-| Analytics engineering | dbt Core | Reusable models, tests, metric definitions and documentation |
+| Cloud analytics | Amazon S3, AWS Glue Data Catalog, Amazon Athena | Low-operational-overhead storage, cataloging and spatial queries |
+| Analytics engineering | dbt Core + dbt-athena | Reusable models, tests, metric definitions and documentation |
 | Routing | NetworkX / OSMnx | Graph-based pathfinding |
 | UI | Streamlit + Folium or PyDeck | Quick interactive map implementation |
 | Automation | GitHub Actions | CI and scheduled refreshes |
@@ -232,7 +233,7 @@ flowchart TD
 
 **Definition of done:** Each eligible pilot-region segment will have a validated geometric length, a documented lighting proxy and transit proximity where source data allow.
 
-### Phase 4 — BigQuery GIS & dbt Analytics Engineering
+### Phase 4 — AWS Athena & dbt Analytics Engineering
 
 **When:** Week 4  
 **Estimated effort:** 10–12 hours  
@@ -240,10 +241,10 @@ flowchart TD
 
 **Work to be done**
 
-- [ ] Create a GCP project and BigQuery dataset, configure a strict billing budget alert and permissions.
-- [ ] Load cleaned geospatial features into staging tables.
-- [ ] Add BigQuery `GEOGRAPHY` fields where needed.
-- [ ] Create dbt staging and mart models.
+- [ ] Create an AWS project boundary, least-privilege IAM roles, S3 buckets/prefixes, Glue database and Athena workgroup; configure AWS Budgets, alerts and Athena scan limits.
+- [ ] Load cleaned geospatial features into versioned S3 staging prefixes and register them in the Glue Data Catalog.
+- [ ] Define Athena-compatible geospatial representations and validate coordinate order and geometry conversions.
+- [ ] Create dbt-athena staging and mart models.
 - [ ] Define and document table grains and relationships.
 - [ ] Add tests for unique IDs, non-null required columns, ranges, valid geometries and key relationships.
 - [ ] Produce summary queries by segment and pilot-area subdivision.
@@ -278,7 +279,7 @@ erDiagram
 
 `DIM_TRANSIT_STOP` will be available for proximity analysis; it will not require a fabricated one-to-one relationship with a street segment.
 
-**Artifacts that will be created:** `dbt/`, BigQuery dataset, model documentation, test results, schema diagram, sample queries.
+**Artifacts that will be created:** `dbt/`, S3/Glue/Athena resources, model documentation, test results, schema diagram, sample queries.
 
 **Definition of done:** A full run will rebuild analytics marts and pass required data-quality checks.
 
@@ -515,7 +516,7 @@ No repository file listed above should be described as already implemented until
 - [ ] Calculate infrastructure features.
 
 ### Week 4 — Cloud
-- [ ] Create BigQuery tables.
+- [ ] Create S3 staging storage, Glue tables and Athena workgroup.
 - [ ] Develop dbt models.
 - [ ] Add SQL/data-quality tests.
 
@@ -548,13 +549,12 @@ No repository file listed above should be described as already implemented until
 | Service | Planned usage | Cost-control approach |
 |---|---|---|
 | Python, GeoPandas, OSMnx, NetworkX, dbt Core, DuckDB | Local data processing and algorithms | Free/open-source; run locally |
-| Google BigQuery GIS | Cloud spatial analytics | Small pilot area, partitioning/filtering, query quotas and budget alerts |
+| Amazon S3, Glue Data Catalog, Athena | Cloud spatial analytics | Small pilot area, partitioned/versioned files, lifecycle policy, Athena workgroup scan limits and AWS Budgets |
 | GitHub Actions | Tests and scheduled refresh | Modest run cadence, cache dependencies when helpful |
 | Streamlit Community Cloud | Host demo | Use free offering within resource constraints |
-| Azure/AWS | Not needed for initial MVP | Avoid introducing an additional paid cloud stack |
 | Geocoding/routing APIs | Avoid paid requests where possible | Prefer local OSM network and clearly documented geocoding limits |
 
-For GCP, official pricing and free usage terms **will be checked at setup time**: [BigQuery pricing](https://cloud.google.com/bigquery/pricing). Hosting terms **will be checked** at [Streamlit Community Cloud](https://streamlit.io/cloud).
+AWS service pricing, Free Tier terms and regional availability **will be checked at setup time**: [AWS Pricing](https://aws.amazon.com/pricing/). Hosting terms **will be checked** at [Streamlit Community Cloud](https://streamlit.io/cloud).
 
 **Rules that will be followed:** No always-on VM, no paid database cluster, no unbounded query loops, no storing personal route histories, and no hardcoded credentials.
 
@@ -628,8 +628,8 @@ The roadmap **will not prioritize crime-risk scores or claims of personal safety
 
 ### Cloud, analytics and deployment
 
-9. [Google BigQuery GIS documentation](https://cloud.google.com/bigquery/docs/geospatial-intro)
-10. [BigQuery pricing & free usage](https://cloud.google.com/bigquery/pricing)
+9. [Amazon Athena documentation](https://docs.aws.amazon.com/athena/)
+10. [AWS Pricing](https://aws.amazon.com/pricing/)
 11. [dbt Core documentation](https://docs.getdbt.com/docs/core/installation-overview)
 12. [GitHub Actions documentation](https://docs.github.com/en/actions)
 13. [Streamlit documentation](https://docs.streamlit.io/)
@@ -641,7 +641,7 @@ The roadmap **will not prioritize crime-risk scores or claims of personal safety
 ## 12. Planned Portfolio / CV Description (Use Only After Implementation)
 
 **Project name:** HerRoute — Women's Night-Time Mobility Infrastructure Analytics  
-**Planned technologies:** Python, GeoPandas, OSMnx, NetworkX, BigQuery GIS, dbt Core, SQL, Streamlit, GitHub Actions, Docker
+**Planned technologies:** Python, GeoPandas, OSMnx, NetworkX, Amazon S3, AWS Glue Data Catalog, Amazon Athena, dbt Core, SQL, Streamlit, GitHub Actions, Docker
 
 **Candidate bullet — to be finalized against actual results:**
 

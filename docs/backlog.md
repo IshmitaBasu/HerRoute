@@ -4,10 +4,10 @@ This local backlog replaces a remote issue board until a GitHub repository and a
 
 ## Phase 2 — ingestion
 
-- [ ] Validate candidate pilot and compare another area if needed; record counts, spatial distribution and final bounds.
-- [ ] Verify source licenses, endpoints, field definitions, CRS and versions; document attribution and fetch policies.
-- [ ] Implement repeatable, bounded lighting, OSM network and GTFS ingestion with manifests and source checks.
-- [ ] Demonstrate a clean download and document reproduction and failure cases.
+- [x] Select pilot after inspecting source counts, spatial distribution and weak graph connectivity; investigate disconnected components in Phase 3.
+- [x] Document source licenses, endpoints, observed fields, CRS, available timestamps and attribution; review provider terms again before publication.
+- [x] Implement bounded lighting, OSM network and GTFS ingestion with manifests and source checks.
+- [x] Run all three sources locally and document reproduction and failure cases; a fresh-checkout rerun remains to be independently verified.
 
 ## Phase 3 — spatial features
 
@@ -15,10 +15,10 @@ This local backlog replaces a remote issue board until a GitHub repository and a
 - [ ] Compute length-weighted light proximity and stop distance with explicit unknown states.
 - [ ] Export matching graph and feature snapshot and quality report.
 
-## Phase 4 — warehouse
+## Phase 4 — AWS analytics
 
-- [ ] After account and spending authorization, configure BigQuery and budget controls.
-- [ ] Build documented dbt staging and marts, validation tests and reproducible export.
+- [ ] After account and spending authorization, configure an AWS account/project boundary, IAM roles, S3, Glue Data Catalog, Athena workgroup scan limits and AWS Budgets.
+- [ ] Build documented dbt-Athena staging and marts, validation tests and reproducible export.
 
 ## Phase 5 — routing
 

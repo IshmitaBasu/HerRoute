@@ -9,7 +9,7 @@ flowchart LR
   D[VBB static GTFS] --> B
   B --> E[Validate and project geometry]
   E --> F[Segment features and graph snapshot]
-  E --> G[BigQuery staging and dbt marts]
+  E --> G[S3 + Glue Catalog + Athena + dbt marts]
   G --> F
   F --> H[NetworkX routing]
   H --> I[Streamlit map and comparison]
@@ -30,8 +30,8 @@ Batch processing handles network acquisition, projection, spatial joins and vali
 | Segment features | Snapshot ID, segment ID, length, known covered length, unknown length, light count, nearest stop distance or null, quality status | Percentages derive from eligible lengths; null means unknown, not zero. |
 | Route result | Ordered edge IDs, distance, duration, covered and unknown lengths, documented transit metric, snapshot ID | No persistent user journey storage. |
 
-Use a suitable Berlin metric CRS, initially EPSG:25833, for distances and spatial joins; convert to WGS84 for display and BigQuery geography. Preserve source CRS and validate transformations. Schema details and stop-distance aggregation will be finalized against actual source data in later phases.
+Use a suitable Berlin metric CRS, initially EPSG:25833, for distances and spatial joins; convert to WGS84 for display and Athena geospatial processing. Preserve source CRS and validate transformations. Schema details and stop-distance aggregation will be finalized against actual source data in later phases.
 
 ## Data quality and operational boundaries
 
-Validate geometry, bounds, IDs, graph connectivity, coverage ranges, referential integrity and artifact snapshot consistency. Build candidate snapshots separately and only promote after checks pass; preserve the last valid version. Record failures and freshness without logging endpoints. CI uses small deterministic fixtures; actual source refresh cadence follows provider updates and service terms. No billing, service credentials or public infrastructure is created in this phase.
+AWS is the planned analytics platform: versioned feature artifacts will be stored in S3, registered in the AWS Glue Data Catalog, queried with Athena, and modeled with dbt using an Athena adapter. Configure least-privilege IAM roles, S3 encryption, lifecycle policies, Athena workgroup scan limits and AWS Budgets before any cloud load. Validate geometry, bounds, IDs, graph connectivity, coverage ranges, referential integrity and artifact snapshot consistency. Build candidate snapshots separately and only promote after checks pass; preserve the last valid version. Record failures and freshness without logging endpoints. CI uses small deterministic fixtures; actual source refresh cadence follows provider updates and service terms. No AWS account, billing configuration, credentials or public infrastructure is created in this phase.
