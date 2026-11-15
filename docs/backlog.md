@@ -11,9 +11,10 @@ This local backlog replaces a remote issue board until a GitHub repository and a
 
 ## Phase 3 — spatial features
 
-- [ ] Validate geometries, project to metric CRS, retain graph identity and assess connectivity.
-- [ ] Compute length-weighted light proximity and stop distance with explicit unknown states.
-- [ ] Export matching graph and feature snapshot and quality report.
+- [x] Validate geometries, project to EPSG:25833, retain graph identity and assess weak connectivity.
+- [x] Compute length-weighted mapped-light proximity and nearest-stop distance with explicit unknown states.
+- [x] Export matching graph and feature snapshot with checksums and a quality report.
+- [x] Run a 10 m, 20 m and 30 m buffer sensitivity comparison; document the observed result and keep 20 m as the initial routing parameter.
 
 ## Phase 4 — AWS analytics
 
