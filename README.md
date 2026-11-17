@@ -4,7 +4,7 @@ HerRoute is a Berlin walking-route comparison app. It compares a shortest route 
 
 The project has completed **Phase 6: interactive application**. It has a validated raw snapshot and processed walking-segment features for the Alexanderplatz pilot, plus a private S3, Glue, Athena, and dbt analytics layer. The browser interface uses AWS Location Places for live address suggestions, renders route alternatives on an OpenStreetMap basemap, and keeps favourites and feedback only in the user's browser. The route engine still uses the matching local graph and feature snapshot; cloud-hosted route serving and scheduled refresh are future work.
 
-Phase 7 has begun with GitHub Actions CI. Every push and pull request to `main` runs the offline Python test suite without cloud credentials or live data downloads.
+Phase 7 has begun with GitHub Actions CI and browser-API regression tests. Every push and pull request to `main` runs the offline Python test suite without cloud credentials or live data downloads.
 
 ## Run locally
 
