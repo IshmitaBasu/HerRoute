@@ -47,6 +47,12 @@ def index():
     return FileResponse(STATIC_DIR / "index.html")
 
 
+@app.get("/health")
+def health():
+    """Provide a credential-free liveness check for container hosts."""
+    return {"status": "ok", "routing_snapshot_available": Path("data/raw/walk.graphml").exists() and Path("data/processed/segment_features.parquet").exists()}
+
+
 @app.get("/api/suggest")
 def suggest(q: str = Query(min_length=0, max_length=200)):
     """Return live, pilot-filtered address choices after three characters."""

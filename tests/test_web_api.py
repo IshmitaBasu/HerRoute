@@ -29,6 +29,16 @@ async def test_suggest_returns_browser_safe_address_choices(monkeypatch):
 
 
 @pytest.mark.anyio
+async def test_health_is_available_without_cloud_credentials():
+    transport = httpx.ASGITransport(app=web.app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.get("/health")
+
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+
+
+@pytest.mark.anyio
 async def test_routes_resolves_selected_places_and_returns_map_geometry(monkeypatch):
     graph = nx.MultiDiGraph()
     graph.add_node("origin", x=13.405, y=52.518)
