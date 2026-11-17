@@ -39,6 +39,29 @@ jobs:
           test -n "$HERROUTE_S3_BUCKET" || { echo "Set the HERROUTE_S3_BUCKET repository variable."; exit 1; }
           test -n "$AWS_ROLE_ARN" || { echo "Set the HERROUTE_GITHUB_OIDC_ROLE_ARN repository variable."; exit 1; }
 
+      - name: Report non-sensitive OIDC identity claims
+        shell: python
+        run: |
+          import base64
+          import json
+          import os
+          from urllib.request import Request, urlopen
+
+          request_url = os.environ["ACTIONS_ID_TOKEN_REQUEST_URL"]
+          separator = "&" if "?" in request_url else "?"
+          request = Request(
+              f"{request_url}{separator}audience=sts.amazonaws.com",
+              headers={"Authorization": f"bearer {os.environ['ACTIONS_ID_TOKEN_REQUEST_TOKEN']}"},
+          )
+          with urlopen(request) as response:
+              token = json.load(response)["value"]
+          payload = token.split(".")[1]
+          claims = json.loads(base64.urlsafe_b64decode(payload + "==="))
+          visible_claims = {key: claims.get(key) for key in (
+              "aud", "sub", "repository", "ref", "repository_id", "repository_owner_id",
+          )}
+          print(json.dumps(visible_claims, indent=2))
+
       - name: Configure AWS credentials through GitHub OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
