@@ -88,6 +88,10 @@ On 15 November 2026, the first `dbt build` completed successfully against the va
 | WKT geometries Athena could not parse | 0 |
 | Mean source-segment mapped-light coverage proxy | 76.24% |
 
+## Public-demo AWS boundary
+
+The public demo does not connect to this warehouse. Its host receives only a scoped Amazon Location API key for `geo-places:Autocomplete` and `geo-places:GetPlace` on `arn:aws:geo-places:eu-central-1::provider/default`. The key supports address selection and is stored as a host secret; it grants no S3, Glue, Athena, dbt, IAM, or warehouse access. This separates a low-cost public route demonstration from analytical data-management permissions.
+
 ## Approved warehouse snapshot: 17 November 2026
 
 The manual candidate-refresh workflow produced candidate `run-44127441145-1`. Its manifest records 7,860 walking-network nodes, 19,524 directed segments, 4,759 mapped-light points, and 912 transit stops. The reviewed promotion workflow revalidated the candidate artifacts, activated `staging/segment_features/snapshot=2026-11-17/data/` as the Athena external-table location, then rebuilt and tested the dbt models successfully. This is the current approved warehouse source. The local FastAPI routing snapshot is separate and was not changed by warehouse promotion.

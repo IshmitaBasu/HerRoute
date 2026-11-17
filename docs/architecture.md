@@ -1,6 +1,6 @@
 # Architecture and contracts
 
-Status: Phase 6 complete. AWS analytics, local route comparisons, and the local FastAPI browser interface are implemented. The route engine intentionally reads the matching local snapshot; a cloud-hosted route-serving layer and scheduled refresh remain future work.
+Status: Phases 1–7 are complete. Phase 8 public-demo deployment is in progress. AWS analytics, local route comparisons, a FastAPI browser interface, container packaging, and controlled refresh/promotion are implemented. The route engine intentionally reads the matching local snapshot; warehouse promotion does not change it.
 
 ```mermaid
 flowchart LR
@@ -12,13 +12,14 @@ flowchart LR
   E --> G[S3 + Glue Catalog + Athena + dbt marts]
   G --> F
   F --> H[NetworkX routing]
-  H --> I[FastAPI local web API]
+  H --> I[FastAPI server<br/>local or container]
   I --> K[Browser address suggestions, map, and comparison]
   L[AWS Location Places] --> I
+  M[Render free web service<br/>public demo host] --> I
   J[CI and controlled refresh] --> B
 ```
 
-Batch processing handles network acquisition, projection, spatial joins and validation. The interactive app loads a matching graph and feature snapshot and performs routing only. AWS Location Places supplies live address suggestions, while the browser loads OpenStreetMap tiles for display. Favourites and feedback stay in browser local storage and are never sent to the server. The local app must remain usable without a live warehouse connection; the warehouse and its export are separately reproducible. A release manifest binds all artifacts to the same snapshot and records provenance and validation status.
+Batch processing handles network acquisition, projection, spatial joins and validation. The interactive app loads a matching graph and feature snapshot and performs routing only. AWS Location Places supplies live address suggestions, while the browser loads OpenStreetMap tiles for display. Favourites and feedback stay in browser local storage and are never sent to the server. The public-demo container contains the two routing artifacts it needs, but no AWS account credentials and no warehouse data-access permissions. Its server-side Amazon Location API key is limited to autocomplete and place retrieval. The warehouse and its export are separately reproducible. A release manifest binds artifacts to a snapshot and records provenance and validation status.
 
 ## Proposed data contracts
 

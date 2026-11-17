@@ -7,6 +7,8 @@
 
 > **Current status:** Phases 1–7 are implemented; Phase 8 is next.
 
+> **Active phase (authoritative):** Phase 8 is in progress. The app is containerized for a Render free-tier public demo, uses a server-side scoped Amazon Location API key for address selection, and awaits its first live deployment and evaluation.
+
 ## Current implementation status
 
 As of 17 November 2026, the project has completed Phases 1–6:
@@ -20,7 +22,7 @@ As of 17 November 2026, the project has completed Phases 1–6:
 | 5. Routing algorithm | Complete | Tested shortest and lighting-aware routes, detour rejection, and two route-weight sensitivity checks. |
 | 6. Interactive app | Complete | Local FastAPI web interface with AWS address suggestions, an OpenStreetMap route map, preference-aware comparisons, browser-only favourites and feedback, and copyable route links. |
 | 7. Testing and automation | Complete | GitHub Actions CI, isolated candidate refresh, GitHub OIDC roles, failure issues, controlled Athena/dbt promotion, and documented recovery behaviour. |
-| 8. Deployment and portfolio | Next | Deploy the FastAPI app, evaluate representative journeys, and prepare public portfolio materials. |
+| 8. Deployment and portfolio | In progress | Docker packaging, health endpoint, Render free-tier deployment design, and a server-side scoped AWS Location API key are ready; public deployment and evaluation remain. |
 
 The phase plans below preserve the original scope and acceptance criteria. Actual results, technical decisions, and validation evidence are maintained in the linked project documentation.
 
@@ -158,10 +160,10 @@ flowchart TD
 | Cloud analytics | Amazon S3, AWS Glue Data Catalog, Amazon Athena | Low-operational-overhead storage, cataloging and spatial queries |
 | Analytics engineering | dbt Core + dbt-athena | Reusable models, tests, metric definitions and documentation |
 | Routing | NetworkX / OSMnx | Graph-based pathfinding |
-| UI | Streamlit + Folium or PyDeck | Quick interactive map implementation |
+| UI | FastAPI, vanilla JavaScript, Leaflet | Browser route comparison, address selection, and map overlays |
 | Automation | GitHub Actions | CI and scheduled refreshes |
 | Packaging | Docker | Reproducible local environment |
-| Deployment | Streamlit Community Cloud | Low-cost publicly accessible demo |
+| Deployment | Docker + Render free web service | Remote container build for a portfolio demo; may sleep when idle |
 
 ---
 
@@ -441,7 +443,8 @@ flowchart LR
 
 **Work to be done**
 
-- [ ] Deploy the Streamlit application to free/low-cost hosting.
+- [x] Package the FastAPI application as a Docker image, with a health endpoint and a scoped server-side Places API-key option.
+- [ ] Deploy the FastAPI application to Render's free web-service tier.
 - [ ] Check external access, resource consumption and response time.
 - [ ] Evaluate **20–30** start/end pairs within the pilot region.
 - [ ] Compare baseline and alternative route outcomes.

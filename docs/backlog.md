@@ -28,16 +28,18 @@ This local backlog tracks implementation status. Completed items have evidence i
 
 ## Phase 6 — app
 
-- [ ] Build endpoint selection, map, comparison, source attribution and accessible limitations.
-- [ ] Test representative user flows, errors and missing data.
+- [x] Build endpoint selection, map, comparison, source attribution and accessible limitations.
+- [x] Test representative user flows, errors and missing data.
 
 ## Phase 7 — automation
 
-- [ ] Add CI, deterministic regression cases, controlled refresh and failure notifications.
-- [ ] Validate clean setup, snapshot promotion and preservation of last valid data.
+- [x] Add CI, deterministic regression cases, controlled refresh and failure notifications.
+- [x] Validate candidate snapshot promotion and preservation of the last valid warehouse source.
 
 ## Phase 8 — release
 
 - [ ] Evaluate 20–30 journeys and publish measured results and limitations.
 - [ ] Deploy public demo after external accounts and publishing are authorized; create README, screenshots, demo and case study.
+- [x] Package the FastAPI application for a remote Docker build; add `/health` and server-side scoped Places API-key support.
+- [ ] Deploy the public demo on Render, confirm live address search and route comparisons, then capture screenshots and a short demonstration.
 - [ ] Update portfolio/CV only after release and authorization.
