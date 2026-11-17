@@ -16,6 +16,7 @@ dbt/target/
 .env.*
 !.env.example
 .streamlit/secrets.toml
+docs/interview_study_guide.md
 
 # Generated datasets
 data/raw/

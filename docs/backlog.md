@@ -43,6 +43,7 @@ This local backlog tracks implementation status. Completed items have evidence i
 - [x] Deploy public demo after external accounts and publishing are authorized; live at `https://herroute-af9y.onrender.com` with server-side Places lookup.
 - [x] Package the FastAPI application for a remote Docker build; add `/health` and server-side scoped Places API-key support.
 - [x] Deploy the public demo on Render and confirm live address search and route comparisons.
-- [ ] Capture final screenshots and a short demonstration.
+- [x] Capture final portfolio screenshots in the README and case study.
+- [ ] Record a short demo walkthrough.
 - [x] Draft the portfolio case study with the verified implementation and evaluation results.
 - [ ] Update portfolio/CV only after release and authorization.
