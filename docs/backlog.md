@@ -38,7 +38,8 @@ This local backlog tracks implementation status. Completed items have evidence i
 
 ## Phase 8 — release
 
-- [ ] Evaluate 20–30 journeys and publish measured results and limitations.
+- [x] Add a reproducible, fixed 25-journey pilot evaluation set and offline result-summary command.
+- [x] Evaluate 25 fixed pilot journeys and publish measured results, including unavailable alternatives and the graph-connectivity failure.
 - [x] Deploy public demo after external accounts and publishing are authorized; live at `https://herroute-af9y.onrender.com` with server-side Places lookup.
 - [x] Package the FastAPI application for a remote Docker build; add `/health` and server-side scoped Places API-key support.
 - [x] Deploy the public demo on Render and confirm live address search and route comparisons.

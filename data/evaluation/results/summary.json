@@ -1,0 +1,49 @@
+{
+  "created_utc": "2026-11-17T18:12:46.317917+00:00",
+  "routing_settings": {
+    "lighting_penalty": 2.0,
+    "max_detour_ratio": 0.2,
+    "transit_proximity_penalty": 0.0
+  },
+  "journeys_requested": 25,
+  "journeys_completed": 24,
+  "journey_errors": 1,
+  "distinct_alternatives": 22,
+  "distinct_alternative_rate_pct": 91.67,
+  "alternative_unavailable_reasons": {
+    "No distinct lighting-aware alternative was found.": 1,
+    "The lighting-aware candidate exceeds the configured detour limit.": 1
+  },
+  "extra_distance_m": {
+    "count": 22,
+    "min": 3.9,
+    "p25": 41.2,
+    "median": 66.35,
+    "p75": 109.36,
+    "max": 191.84
+  },
+  "extra_distance_pct": {
+    "count": 22,
+    "min": 0.16,
+    "p25": 1.75,
+    "median": 2.97,
+    "p75": 5.24,
+    "max": 7.99
+  },
+  "mapped_light_coverage_change_pp": {
+    "count": 22,
+    "min": 0.62,
+    "p25": 4.24,
+    "median": 6.08,
+    "p75": 11.49,
+    "max": 20.05
+  },
+  "route_runtime_ms": {
+    "count": 24,
+    "min": 2447.01,
+    "p25": 2612.08,
+    "median": 2649.48,
+    "p75": 2725.05,
+    "max": 2893.61
+  }
+}

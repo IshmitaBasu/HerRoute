@@ -44,6 +44,10 @@ The hosted server receives `HERROUTE_LOCATION_API_KEY` as an encrypted host secr
 
 The deployed demo was verified with fresh Amazon Location address selections and a completed route comparison. It is a portfolio demonstration, so the free Render service can sleep after inactivity and the first request after that may take longer.
 
+## Pilot evaluation
+
+On 17 November 2026, a fixed 25-journey Alexanderplatz evaluation completed 24 route comparisons. Twenty-two of those 24 comparisons (91.67%) returned a distinct, feasible lighting-aware alternative. Across those alternatives, the median extra distance was 66.35 m (2.97%), while median mapped-light coverage increased by 6.08 percentage points. One journey could not be routed because its snapped graph nodes had no directed walking path; this is retained as a graph-connectivity limitation. Full method, results and limits are in the [pilot evaluation](docs/evaluation.md).
+
 - [Requirements and success criteria](docs/requirements.md)
 - [Architecture and data contracts](docs/architecture.md)
 - [Assumptions and pilot-area decision](docs/assumptions.md)
@@ -52,6 +56,7 @@ The deployed demo was verified with fresh Amazon Location address selections and
 - [AWS analytics setup and warehouse models](docs/aws_analytics.md)
 - [Routing methodology](docs/routing.md)
 - [Interactive application and privacy boundaries](docs/web_interface.md)
+- [Pilot journey evaluation design](docs/evaluation.md)
 - [UI wireframe](docs/wireframe.md)
 - [Implementation backlog](docs/backlog.md)
 - [Original roadmap](Project%20Roadmap.md)
