@@ -19,5 +19,5 @@ CREATE EXTERNAL TABLE IF NOT EXISTS herroute.segment_features (
     geometry_wkt string
 )
 STORED AS PARQUET
-LOCATION 's3://herroute-627511992462-eu-central-1/staging/segment_features/snapshot=2026-11-15/data/'
+LOCATION 's3://herroute-627511992462-eu-central-1/staging/segment_features/snapshot=2026-11-17/data/'
 TBLPROPERTIES ('parquet.compression' = 'SNAPPY');

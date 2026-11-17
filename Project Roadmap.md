@@ -5,6 +5,8 @@
 > **Pilot location:** A limited area of **Berlin, Germany**, selected after reviewing data coverage  
 > **Primary goal:** A reproducible, explainable, infrastructure-aware walking-route comparison application
 
+> **Current status:** Phases 1–7 are implemented; Phase 8 is next.
+
 ## Current implementation status
 
 As of 17 November 2026, the project has completed Phases 1–6:
@@ -17,7 +19,8 @@ As of 17 November 2026, the project has completed Phases 1–6:
 | 4. Cloud and modelling | Complete | Private S3, Glue, Athena, dbt models, and 19 passing cloud data tests. |
 | 5. Routing algorithm | Complete | Tested shortest and lighting-aware routes, detour rejection, and two route-weight sensitivity checks. |
 | 6. Interactive app | Complete | Local FastAPI web interface with AWS address suggestions, an OpenStreetMap route map, preference-aware comparisons, browser-only favourites and feedback, and copyable route links. |
-| 7. Testing and automation | Next | Add CI, controlled source-refresh automation, and monitoring. |
+| 7. Testing and automation | Complete | GitHub Actions CI, isolated candidate refresh, GitHub OIDC roles, failure issues, controlled Athena/dbt promotion, and documented recovery behaviour. |
+| 8. Deployment and portfolio | Next | Deploy the FastAPI app, evaluate representative journeys, and prepare public portfolio materials. |
 
 The phase plans below preserve the original scope and acceptance criteria. Actual results, technical decisions, and validation evidence are maintained in the linked project documentation.
 

@@ -25,7 +25,7 @@ A budget is an alerting mechanism. It is not a complete spend stop, so keep Athe
 
 ```text
 s3://herroute-627511992462-eu-central-1/
-  staging/segment_features/snapshot=2026-11-15/
+  staging/segment_features/snapshot=2026-11-17/
     manifest.json
     data/segment_features.parquet
   warehouse/                         # requested dbt table-data prefix
@@ -45,7 +45,7 @@ $env:HERROUTE_WAREHOUSE = 's3://herroute-627511992462-eu-central-1/warehouse/'
 .venv\Scripts\python -m src.warehouse.export
 ```
 
-Upload the new Parquet file to a new `snapshot=YYYY-MM-DD/data/` prefix, upload its processed manifest beside it, then update the location in `sql/athena/00_create_segment_features.sql` before registering the external table. The committed DDL reflects the validated 2026-11-15 snapshot.
+The initial table DDL and location-change SQL reflect the approved 2026-11-17 snapshot. Subsequent updates use the reviewed `Promote approved candidate` workflow, which revalidates a candidate, copies it to a new immutable staging prefix, changes the Athena source location, and runs `dbt build`.
 
 Set up dbt without committing credentials:
 
@@ -87,3 +87,7 @@ On 15 November 2026, the first `dbt build` completed successfully against the va
 | dbt models built | 4 of 4 |
 | WKT geometries Athena could not parse | 0 |
 | Mean source-segment mapped-light coverage proxy | 76.24% |
+
+## Approved warehouse snapshot: 17 November 2026
+
+The manual candidate-refresh workflow produced candidate `run-44127441145-1`. Its manifest records 7,860 walking-network nodes, 19,524 directed segments, 4,759 mapped-light points, and 912 transit stops. The reviewed promotion workflow revalidated the candidate artifacts, activated `staging/segment_features/snapshot=2026-11-17/data/` as the Athena external-table location, then rebuilt and tested the dbt models successfully. This is the current approved warehouse source. The local FastAPI routing snapshot is separate and was not changed by warehouse promotion.
