@@ -15,11 +15,15 @@ The Docker image contains only `walk.graphml` and `segment_features.parquet`, so
 
 ## Preferences and explanation
 
-The interface provides presets for balanced walking, brighter streets, shorter walking, and nearer mapped transit. The controls set the documented lighting penalty, optional mapped-transit proximity penalty, and maximum detour. The **Why this route?** panel reports the resulting distance, mapped-light-coverage, and mapped-stop-proximity trade-offs. These signals are infrastructure proxies and must not be interpreted as a personal-safety score, illumination measurement, or service guarantee.
+The interface provides presets for balanced walking, brighter streets, shorter walking, and nearer mapped transit. The controls set the documented lighting penalty, optional mapped-transit proximity penalty, and maximum detour. When a comparison is submitted, the action changes to a visible **Finding your route** loading state until the request completes. The **Why this route?** panel reports the resulting distance, mapped-light-coverage, and mapped-stop-proximity trade-offs. These signals are infrastructure proxies and must not be interpreted as a personal-safety score, illumination measurement, or service guarantee.
+
+Users can select a light or dark theme. HerRoute defaults to the browser's colour-scheme preference until the user makes a choice, then remembers that choice only in the browser.
 
 ## Local-only personal controls
 
-Favourites for Home, Work, and Safe place, along with route feedback, are stored in the browser's `localStorage`. They are not sent to HerRoute, AWS, or the analytics warehouse. A copied route link contains the selected address identifiers and labels so another person can reproduce that comparison; it does not include saved favourites or feedback. Users should treat that link as location-sensitive and share it deliberately.
+Saved places have a user-provided label, such as Home or Work, and can be applied directly as a new From or To address. Users can remove them at any time. Saved places, theme preference, and private route notes are stored in the browser's `localStorage`. They are not sent to HerRoute, AWS, or the analytics warehouse.
+
+Private route notes are deliberately not presented as submitted feedback because the application has no feedback-collection service. Users can download their own notes as JSON or clear them from their browser. A copied route link contains the selected address identifiers and labels so another person can reproduce that comparison; it does not include saved places, theme preference, or private notes. Users should treat that link as location-sensitive and share it deliberately.
 
 ## Time context
 

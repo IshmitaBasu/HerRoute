@@ -1,4 +1,4 @@
-<!doctype html>
+﻿<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -10,7 +10,10 @@
   <body>
     <main>
       <header>
-        <p class="eyebrow">HERROUTE · BERLIN PILOT</p>
+        <div class="header-row">
+          <p class="eyebrow">HERROUTE &middot; BERLIN PILOT</p>
+          <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="true">Use light mode</button>
+        </div>
         <h1>Find a route that feels considered.</h1>
         <p class="subtitle">Compare nearby walking routes by distance, mapped-light coverage, and proximity to mapped transit stops.</p>
         <div class="notice">These are infrastructure signals, not a safety guarantee. Trust your local knowledge and choose what feels right for you.</div>
@@ -26,8 +29,9 @@
           <label>Transit proximity <output id="transit-output">0</output><input id="transit" type="range" min="0" max="3" value="0" step="0.5"></label>
           <label>Maximum detour <output id="detour-output">20%</output><input id="detour" type="range" min="0" max="30" value="20" step="5"></label>
         </div>
-        <button id="compare" disabled>Compare walking routes</button>
+        <button id="compare" disabled><span class="button-label">Compare walking routes</span><span class="button-loading" hidden><span class="spinner" aria-hidden="true"></span>Finding your route&hellip;</span></button>
         <p class="hint">Suggestions appear after three characters and are limited to the Alexanderplatz pilot area.</p>
+        <p id="route-status" class="route-status" aria-live="polite"></p>
       </section>
 
       <p id="error" class="error" role="alert"></p>
@@ -41,8 +45,8 @@
         </div>
         <article class="why"><p class="card-kicker">WHY THIS ROUTE?</p><h2>What changed</h2><div id="why-route"></div></article>
         <div class="local-tools">
-          <article><p class="card-kicker">SAVE FOR LATER</p><h2>Your places</h2><p class="hint">Saved only in this browser.</p><div class="save-row"><select id="favorite-role"><option value="Home">Home</option><option value="Work">Work</option><option value="Safe place">Safe place</option></select><select id="favorite-endpoint"><option value="origin">Save origin</option><option value="destination">Save destination</option></select><button id="save-favorite" class="secondary">Save place</button></div><div id="favorites" class="favorite-list"></div></article>
-          <article><p class="card-kicker">HELP IMPROVE THIS PILOT</p><h2>Route feedback</h2><p class="hint">Feedback stays in this browser for now; it does not change route recommendations.</p><select id="feedback-type"><option>Felt well-lit</option><option>Felt unclear or uncomfortable</option><option>Construction or obstruction</option><option>Map data looks incorrect</option></select><textarea id="feedback-note" maxlength="280" placeholder="Optional note — do not add personal or sensitive details."></textarea><button id="save-feedback" class="secondary">Save feedback locally</button><p id="feedback-status" class="hint"></p></article>
+          <article><p class="card-kicker">SAVE FOR LATER</p><h2>Saved places</h2><p class="hint">Give the selected From or To address a name. Saved places stay only in this browser.</p><div class="save-row"><input id="favorite-name" maxlength="40" placeholder="Name this place, for example: Home"><select id="favorite-endpoint" aria-label="Selected address to save"><option value="origin">Save current From address</option><option value="destination">Save current To address</option></select><button id="save-favorite" class="secondary">Save place</button></div><p id="favorite-status" class="hint" aria-live="polite"></p><div id="favorites" class="favorite-list"></div></article>
+          <article><p class="card-kicker">PRIVATE ROUTE NOTES</p><h2>Remember how this route felt</h2><p class="hint">Notes stay only in this browser. They are not sent to HerRoute and do not change recommendations.</p><select id="feedback-type"><option>Felt well-lit</option><option>Felt unclear or uncomfortable</option><option>Construction or obstruction</option><option>Map data looks incorrect</option></select><textarea id="feedback-note" maxlength="280" placeholder="Optional note &mdash; do not add personal or sensitive details."></textarea><div class="feedback-actions"><button id="save-feedback" class="secondary">Save note on this device</button><button id="download-feedback" class="text-button" type="button">Download notes</button><button id="clear-feedback" class="text-button danger" type="button">Clear notes</button></div><p id="feedback-status" class="hint" aria-live="polite"></p></article>
         </div>
       </section>
     </main>

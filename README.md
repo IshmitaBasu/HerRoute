@@ -57,6 +57,7 @@ On 17 November 2026, a fixed 25-journey Alexanderplatz evaluation completed 24 r
 - [Routing methodology](docs/routing.md)
 - [Interactive application and privacy boundaries](docs/web_interface.md)
 - [Pilot journey evaluation design](docs/evaluation.md)
+- [Portfolio case study](docs/portfolio_case_study.md)
 - [UI wireframe](docs/wireframe.md)
 - [Implementation backlog](docs/backlog.md)
 - [Original roadmap](Project%20Roadmap.md)
