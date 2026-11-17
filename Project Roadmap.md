@@ -1,11 +1,24 @@
 # HerRoute — Project Roadmap
 
-> **Project status:** Planned / Not yet implemented  
+> **Project status:** Phases 1–5 implemented; Phase 6 is next.  
 > **Working title:** HerRoute — Women's Night-Time Mobility & Urban Infrastructure Analytics  
 > **Pilot location:** A limited area of **Berlin, Germany**, selected after reviewing data coverage  
 > **Primary goal:** A reproducible, explainable, infrastructure-aware walking-route comparison application
 
-**Planning convention:** Every activity in this roadmap is future work. A checkbox `[ ]` means **to be done**, not completed. Numbers in examples and mockups are **illustrative**, not measured results.
+## Current implementation status
+
+As of 17 November 2026, the project has completed Phases 1–5:
+
+| Phase | Status | Evidence |
+|---|---|---|
+| 1. Scope and design | Complete | Requirements, architecture, assumptions, wireframe, and backlog. |
+| 2. Data ingestion | Complete | Validated Berlin lighting, OSM walking-network, and VBB GTFS snapshot. |
+| 3. Geospatial ETL | Complete | Tested segment features, coverage sensitivity results, and quality report. |
+| 4. Cloud and modelling | Complete | Private S3, Glue, Athena, dbt models, and 19 passing cloud data tests. |
+| 5. Routing algorithm | Complete | Tested shortest and lighting-aware routes, detour rejection, and two route-weight sensitivity checks. |
+| 6. Interactive app | Next | Build the local Streamlit route-comparison interface. |
+
+The phase plans below preserve the original scope and acceptance criteria. Actual results, technical decisions, and validation evidence are maintained in the linked project documentation.
 
 ---
 

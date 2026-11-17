@@ -5,6 +5,11 @@ __pycache__/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.pip-dbt-install.log
+dbt/profiles.yml
+dbt/.user.yml
+dbt/logs/
+dbt/target/
 
 # Local credentials and configuration
 .env
@@ -15,6 +20,7 @@ __pycache__/
 # Generated datasets
 data/raw/
 data/processed/
+data/warehouse/
 cache/
 
 # Editor and OS files

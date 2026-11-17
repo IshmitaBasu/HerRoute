@@ -1,0 +1,20 @@
+select
+    cast(segment_id as varchar) as segment_id,
+    cast(u as varchar) as from_node_id,
+    cast(v as varchar) as to_node_id,
+    cast(key as varchar) as edge_key,
+    cast(osm_way_id as varchar) as osm_way_id,
+    cast(length_m as double) as length_m,
+    cast(nearby_light_count as bigint) as nearby_light_count,
+    cast(mapped_light_covered_length_m as double) as mapped_light_covered_length_m,
+    cast(mapped_light_coverage_pct as double) as mapped_light_coverage_pct,
+    cast(nearest_transit_stop_m as double) as nearest_transit_stop_m,
+    cast(lighting_data_status as varchar) as lighting_data_status,
+    cast(transit_data_status as varchar) as transit_data_status,
+    cast(data_quality_status as varchar) as data_quality_status,
+    cast(weak_component_id as bigint) as weak_component_id,
+    cast(weak_component_size as bigint) as weak_component_size,
+    cast(is_largest_weak_component as boolean) as is_largest_weak_component,
+    cast(source_snapshot_date as date) as source_snapshot_date,
+    cast(geometry_wkt as varchar) as geometry_wkt
+from {{ source('raw', 'segment_features') }}

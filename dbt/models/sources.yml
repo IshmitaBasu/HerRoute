@@ -1,0 +1,20 @@
+version: 2
+
+sources:
+  - name: raw
+    database: awsdatacatalog
+    schema: herroute
+    tables:
+      - name: segment_features
+        description: >
+          Validated processed walking segments exported from GeoParquet as Athena-compatible
+          Parquet. One row represents one directed OSM graph edge for one source snapshot.
+        columns:
+          - name: segment_id
+            tests: [not_null, unique]
+          - name: length_m
+            tests: [not_null]
+          - name: source_snapshot_date
+            tests: [not_null]
+          - name: geometry_wkt
+            tests: [not_null]

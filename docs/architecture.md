@@ -1,6 +1,6 @@
 # Architecture and contracts
 
-Status: proposed design. No component is deployed.
+Status: Phase 5 complete. AWS analytics and tested local route comparisons are implemented; the interactive UI remains planned.
 
 ```mermaid
 flowchart LR
@@ -34,4 +34,4 @@ Use a suitable Berlin metric CRS, initially EPSG:25833, for distances and spatia
 
 ## Data quality and operational boundaries
 
-AWS is the planned analytics platform: versioned feature artifacts will be stored in S3, registered in the AWS Glue Data Catalog, queried with Athena, and modeled with dbt using an Athena adapter. Configure least-privilege IAM roles, S3 encryption, lifecycle policies, Athena workgroup scan limits and AWS Budgets before any cloud load. Validate geometry, bounds, IDs, graph connectivity, coverage ranges, referential integrity and artifact snapshot consistency. Build candidate snapshots separately and only promote after checks pass; preserve the last valid version. Record failures and freshness without logging endpoints. CI uses small deterministic fixtures; actual source refresh cadence follows provider updates and service terms. No AWS account, billing configuration, credentials or public infrastructure is created in this phase.
+AWS stores versioned feature artifacts in S3, registers them in the AWS Glue Data Catalog, queries them with Athena, and models them with dbt using an Athena adapter. The current project uses a restricted operator role, S3 encryption and lifecycle settings, an Athena scan limit, and AWS Budget alerts. Validate geometry, bounds, IDs, graph connectivity, coverage ranges, referential integrity and artifact snapshot consistency. Build candidate snapshots separately and only promote after checks pass; preserve the last valid version. Record failures and freshness without logging endpoints. CI uses small deterministic fixtures; actual source refresh cadence follows provider updates and service terms.

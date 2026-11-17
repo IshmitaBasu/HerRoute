@@ -8,6 +8,10 @@ For each walking edge, `length_m` is the geometric length in EPSG:25833. A mappe
 
 `nearest_transit_stop_m` is the straight-line distance from the edge geometry to the closest GTFS stop point. It does not represent walking access, station accessibility, scheduled service or night-time availability. The current GTFS data may contain platforms and entrances as separate stop records.
 
+## Cloud analytics representation
+
+The routing artifact remains GeoParquet because it retains geometry efficiently for GeoPandas and NetworkX preparation. Before loading to Athena, `src/warehouse/export.py` exports a separate ordinary Parquet table with `geometry_wkt` in WGS84. This avoids treating GeoParquet metadata as an Athena contract while retaining an inspectable geometry representation. Athena verified that all 19,516 exported values parse as `ST_LineString`; dbt stores the WKT field and validates it with `ST_GeometryFromText` rather than persisting Athena's unsupported `Geometry` Hive type.
+
 ## Missing data and limitations
 
 When a lighting or stop input is unavailable, the corresponding metric remains null and `data_quality_status` is `source_missing`; it is never changed to zero. For the validated snapshot both inputs are present, so features are labeled `source_snapshot_available_inventory_completeness_unknown`. This means the source was available, while completeness of the public inventory remains unknown.

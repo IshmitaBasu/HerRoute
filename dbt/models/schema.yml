@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: stg_segment_features
+    description: Typed staging view at the grain of a directed walking-network segment and source snapshot.
+    columns:
+      - name: segment_id
+        tests: [not_null, unique]
+      - name: geometry_wkt
+        tests: [not_null, valid_wkt]
+  - name: dim_street_segment
+    description: Segment geometry and stable graph-edge identity for one source snapshot.
+    columns:
+      - name: segment_id
+        tests: [not_null, unique]
+      - name: length_m
+        tests: [not_null]
+  - name: fct_segment_infrastructure
+    description: Mapped-lighting and transit-proximity measures for each segment and source snapshot.
+    columns:
+      - name: segment_id
+        tests:
+          - not_null
+          - unique
+          - relationships:
+              arguments:
+                to: ref('dim_street_segment')
+                field: segment_id
+      - name: mapped_light_coverage_pct
+        tests: [coverage_range]
+      - name: nearest_transit_stop_m
+        tests: [nonnegative_when_known]
+  - name: mart_pilot_area_summary
+    description: One aggregate row for each validated source snapshot in the pilot area.
+    columns:
+      - name: source_snapshot_date
+        tests: [not_null, unique]

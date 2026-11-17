@@ -1,6 +1,6 @@
 # Implementation backlog
 
-This local backlog replaces a remote issue board until a GitHub repository and account are available. Items are planned, not completed.
+This local backlog tracks implementation status. Completed items have evidence in the repository or AWS console.
 
 ## Phase 2 — ingestion
 
@@ -18,13 +18,13 @@ This local backlog replaces a remote issue board until a GitHub repository and a
 
 ## Phase 4 — AWS analytics
 
-- [ ] After account and spending authorization, configure an AWS account/project boundary, IAM roles, S3, Glue Data Catalog, Athena workgroup scan limits and AWS Budgets.
-- [ ] Build documented dbt-Athena staging and marts, validation tests and reproducible export.
+- [x] Configure the AWS project boundary, restricted IAM role, S3, Glue Data Catalog, Athena workgroup scan limit and AWS Budget alerts.
+- [x] Build dbt-Athena staging and marts, validation tests, WKT export, and a reproducible source table definition.
 
 ## Phase 5 — routing
 
-- [ ] Implement and test baseline, feasible alternative, detour, improvement and failure handling.
-- [ ] Run sensitivity analysis for distance buffer and route weights.
+- [x] Implement and test baseline, feasible alternative, detour, improvement and failure handling.
+- [x] Run route-weight sensitivity checks on two representative pilot-area journeys and retain penalty 2 as the initial documented default.
 
 ## Phase 6 — app
 
