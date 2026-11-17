@@ -1,0 +1,114 @@
+name: Promote approved candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate_key:
+        description: Candidate key to promote, for example run-44127441145-1
+        required: true
+        type: string
+      confirmation:
+        description: Type PROMOTE to update the Athena source location
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: herroute-candidate-promotion
+  cancel-in-progress: false
+
+jobs:
+  promote:
+    name: Validate and promote selected candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_REGION: eu-central-1
+      HERROUTE_S3_BUCKET: ${{ vars.HERROUTE_S3_BUCKET }}
+      AWS_ROLE_ARN: ${{ vars.HERROUTE_GITHUB_PROMOTION_ROLE_ARN }}
+      HERROUTE_ATHENA_RESULTS: s3://${{ vars.HERROUTE_S3_BUCKET }}/athena-results/
+      HERROUTE_WAREHOUSE: s3://${{ vars.HERROUTE_S3_BUCKET }}/warehouse/
+      CANDIDATE_KEY: ${{ inputs.candidate_key }}
+      PROMOTION_CONFIRMATION: ${{ inputs.confirmation }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Check explicit promotion request
+        shell: bash
+        run: |
+          test -n "$HERROUTE_S3_BUCKET" || { echo "Set the HERROUTE_S3_BUCKET repository variable."; exit 1; }
+          test -n "$AWS_ROLE_ARN" || { echo "Set the HERROUTE_GITHUB_PROMOTION_ROLE_ARN repository variable."; exit 1; }
+          [[ "$CANDIDATE_KEY" =~ ^run-[0-9]+-[0-9]+$ ]] || { echo "Candidate key format is invalid."; exit 1; }
+          test "$PROMOTION_CONFIRMATION" = "PROMOTE" || { echo "Confirmation must be PROMOTE."; exit 1; }
+
+      - name: Configure AWS credentials through GitHub OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download and revalidate candidate artifacts
+        id: candidate
+        shell: bash
+        run: |
+          mkdir candidate
+          aws s3 cp "s3://${HERROUTE_S3_BUCKET}/candidates/${CANDIDATE_KEY}/processed/manifest.json" candidate/manifest.json
+          aws s3 cp "s3://${HERROUTE_S3_BUCKET}/candidates/${CANDIDATE_KEY}/warehouse/segment_features.parquet" candidate/segment_features.parquet
+          python -m src.warehouse.promote --manifest candidate/manifest.json --warehouse candidate/segment_features.parquet --candidate-key "$CANDIDATE_KEY" > candidate/validation.json
+          snapshot_date=$(python -c "import json; print(json.load(open('candidate/validation.json'))['snapshot_date'])")
+          echo "snapshot_date=${snapshot_date}" >> "$GITHUB_OUTPUT"
+
+      - name: Check new staging location and save rollback location
+        id: locations
+        shell: bash
+        run: |
+          target_prefix="staging/segment_features/snapshot=${{ steps.candidate.outputs.snapshot_date }}/"
+          key_count=$(aws s3api list-objects-v2 --bucket "$HERROUTE_S3_BUCKET" --prefix "$target_prefix" --max-keys 1 --query "KeyCount" --output text)
+          test "$key_count" = "0" || { echo "A staging snapshot already exists for this date; refusing to overwrite it."; exit 1; }
+          previous_location=$(aws glue get-table --database-name herroute --name segment_features --query "Table.StorageDescriptor.Location" --output text)
+          echo "target_prefix=${target_prefix}" >> "$GITHUB_OUTPUT"
+          echo "previous_location=${previous_location}" >> "$GITHUB_OUTPUT"
+
+      - name: Copy validated candidate into a new staging snapshot
+        run: |
+          aws s3 cp candidate/segment_features.parquet "s3://${HERROUTE_S3_BUCKET}/${{ steps.locations.outputs.target_prefix }}data/segment_features.parquet"
+          aws s3 cp candidate/manifest.json "s3://${HERROUTE_S3_BUCKET}/${{ steps.locations.outputs.target_prefix }}manifest.json"
+
+      - name: Point Athena source to validated snapshot
+        id: activate
+        shell: bash
+        run: |
+          location="s3://${HERROUTE_S3_BUCKET}/${{ steps.locations.outputs.target_prefix }}data/"
+          query="ALTER TABLE herroute.segment_features SET LOCATION '${location}'"
+          execution_id=$(aws athena start-query-execution --work-group herroute --query-execution-context Database=herroute --query-string "$query" --query "QueryExecutionId" --output text)
+          aws athena wait query-succeeded --query-execution-id "$execution_id"
+          echo "activated=true" >> "$GITHUB_OUTPUT"
+
+      - name: Rebuild dbt models and tests with OIDC credentials
+        working-directory: dbt
+        run: dbt build --profiles-dir ../.github/dbt
+
+      - name: Restore previous Athena source when post-promotion validation fails
+        if: failure() && steps.activate.outputs.activated == 'true'
+        shell: bash
+        run: |
+          query="ALTER TABLE herroute.segment_features SET LOCATION '${{ steps.locations.outputs.previous_location }}'"
+          execution_id=$(aws athena start-query-execution --work-group herroute --query-execution-context Database=herroute --query-string "$query" --query "QueryExecutionId" --output text)
+          aws athena wait query-succeeded --query-execution-id "$execution_id"
+
+      - name: Report approved warehouse snapshot
+        run: |
+          echo "Approved Athena source: s3://${HERROUTE_S3_BUCKET}/${{ steps.locations.outputs.target_prefix }}data/"

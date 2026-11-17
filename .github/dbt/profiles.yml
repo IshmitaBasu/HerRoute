@@ -1,0 +1,13 @@
+herroute:
+  target: promotion
+  outputs:
+    promotion:
+      type: athena
+      database: awsdatacatalog
+      schema: herroute
+      region_name: eu-central-1
+      work_group: herroute
+      s3_staging_dir: "{{ env_var('HERROUTE_ATHENA_RESULTS') }}"
+      s3_data_dir: "{{ env_var('HERROUTE_WAREHOUSE') }}"
+      s3_data_naming: table_unique
+      threads: 1

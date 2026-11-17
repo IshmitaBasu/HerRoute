@@ -36,3 +36,25 @@ IDs; the committed trust policy contains the exact required `sub` claim.
 Candidate promotion remains a separate, reviewed operation. After one candidate
 refresh is successful and the cost and source behaviour are reviewed, a monthly
 schedule can be added.
+
+## Promotion
+
+`Promote approved candidate` is another manual GitHub Actions workflow. Its
+operator supplies the exact candidate key and types `PROMOTE`. The workflow
+downloads the candidate from S3 and revalidates its manifest, row count,
+unique IDs, date, lengths, coverage range, and transit-distance range before
+copying it to a new immutable staging prefix. It refuses to overwrite a
+same-day snapshot.
+
+Only then does it move Athena's `segment_features` table to the new prefix and
+run `dbt build` with short-lived GitHub OIDC credentials. If the dbt build
+fails after the source location changes, the workflow restores the previous
+Athena source location. The local FastAPI route engine remains on its own
+approved graph and feature snapshot; warehouse promotion does not silently
+alter interactive routing data.
+
+The promotion workflow uses a separate `HerRouteGitHubPromotion` IAM role. Its
+policy is scoped to reading `candidates/`, creating new
+`staging/segment_features/` snapshots, the HerRoute Athena workgroup, Glue
+objects in the `herroute` database, and the dbt output prefixes. It needs the
+repository variable `HERROUTE_GITHUB_PROMOTION_ROLE_ARN`.
