@@ -70,7 +70,8 @@ jobs:
             --only-show-errors
 
       - name: Report candidate location
-        run: echo "Validated candidate: s3://${HERROUTE_S3_BUCKET}/candidates/${{ steps.candidate.outputs.key }}/"
+        run: |
+          echo "Validated candidate: s3://${HERROUTE_S3_BUCKET}/candidates/${{ steps.candidate.outputs.key }}/"
 
       - name: Open one issue when a refresh fails
         if: failure()
