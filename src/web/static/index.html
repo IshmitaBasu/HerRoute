@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>HerRoute</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="/static/styles.css">
+  </head>
+  <body>
+    <main>
+      <header>
+        <p class="eyebrow">HERROUTE · BERLIN PILOT</p>
+        <h1>Find a route that feels considered.</h1>
+        <p class="subtitle">Compare nearby walking routes by distance, mapped-light coverage, and proximity to mapped transit stops.</p>
+        <div class="notice">These are infrastructure signals, not a safety guarantee. Trust your local knowledge and choose what feels right for you.</div>
+        <p id="evening-context" class="time-context"></p>
+      </header>
+
+      <section class="controls" aria-label="Route controls">
+        <div class="field"><label for="origin">From</label><input id="origin" autocomplete="off" placeholder="Start typing an address, for example: Rosa"><ul id="origin-options" class="options" aria-label="Origin address suggestions"></ul></div>
+        <div class="field"><label for="destination">To</label><input id="destination" autocomplete="off" placeholder="Start typing an address, for example: Alex"><ul id="destination-options" class="options" aria-label="Destination address suggestions"></ul></div>
+        <div class="presets" aria-label="Walking preferences"><span>Walking preference</span><button class="preset active" data-preset="balanced">Balanced</button><button class="preset" data-preset="lit">Brighter streets</button><button class="preset" data-preset="short">Keep it short</button><button class="preset" data-preset="transit">Near mapped transit</button></div>
+        <div class="settings">
+          <label>Lighting preference <output id="lighting-output">2</output><input id="lighting" type="range" min="0" max="3" value="2" step="0.5"></label>
+          <label>Transit proximity <output id="transit-output">0</output><input id="transit" type="range" min="0" max="3" value="0" step="0.5"></label>
+          <label>Maximum detour <output id="detour-output">20%</output><input id="detour" type="range" min="0" max="30" value="20" step="5"></label>
+        </div>
+        <button id="compare" disabled>Compare walking routes</button>
+        <p class="hint">Suggestions appear after three characters and are limited to the Alexanderplatz pilot area.</p>
+      </section>
+
+      <p id="error" class="error" role="alert"></p>
+      <section id="results" hidden>
+        <div class="route-heading"><div><p class="eyebrow">YOUR COMPARISON</p><h2>Route overview</h2><p id="selected-addresses" class="hint"></p></div><button id="share" class="secondary">Copy route link</button></div>
+        <div id="map" aria-label="Route map"></div>
+        <p class="legend"><span class="blue"></span>Shortest route <span class="purple"></span>Preference-aware route <span class="green"></span>Origin <span class="red"></span>Destination</p>
+        <div class="cards">
+          <article><p class="card-kicker">QUICKEST</p><h2>Shortest route</h2><div id="shortest-metrics"></div></article>
+          <article><p class="card-kicker">RECOMMENDED</p><h2>Preference-aware route</h2><div id="lighting-metrics"></div></article>
+        </div>
+        <article class="why"><p class="card-kicker">WHY THIS ROUTE?</p><h2>What changed</h2><div id="why-route"></div></article>
+        <div class="local-tools">
+          <article><p class="card-kicker">SAVE FOR LATER</p><h2>Your places</h2><p class="hint">Saved only in this browser.</p><div class="save-row"><select id="favorite-role"><option value="Home">Home</option><option value="Work">Work</option><option value="Safe place">Safe place</option></select><select id="favorite-endpoint"><option value="origin">Save origin</option><option value="destination">Save destination</option></select><button id="save-favorite" class="secondary">Save place</button></div><div id="favorites" class="favorite-list"></div></article>
+          <article><p class="card-kicker">HELP IMPROVE THIS PILOT</p><h2>Route feedback</h2><p class="hint">Feedback stays in this browser for now; it does not change route recommendations.</p><select id="feedback-type"><option>Felt well-lit</option><option>Felt unclear or uncomfortable</option><option>Construction or obstruction</option><option>Map data looks incorrect</option></select><textarea id="feedback-note" maxlength="280" placeholder="Optional note — do not add personal or sensitive details."></textarea><button id="save-feedback" class="secondary">Save feedback locally</button><p id="feedback-status" class="hint"></p></article>
+        </div>
+      </section>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

@@ -2,7 +2,7 @@
 
 ## Route choices
 
-HerRoute compares a conventional shortest walking route with a lighting-aware candidate on the same validated directed OSM walking graph. The baseline minimizes segment length. The candidate minimizes a documented cost that increases when a segment has lower mapped-light coverage:
+HerRoute compares a conventional shortest walking route with a preference-aware candidate on the same validated directed OSM walking graph. The baseline minimizes segment length. The candidate normally minimizes a documented cost that increases when a segment has lower mapped-light coverage:
 
 ```text
 lighting-aware cost = length_m × (1 + 2 × (1 - mapped_light_coverage_pct / 100))
@@ -11,6 +11,14 @@ lighting-aware cost = length_m × (1 + 2 × (1 - mapped_light_coverage_pct / 100
 The initial lighting penalty is 2. A segment with 0% known mapped-light coverage therefore costs three times its walking length in the candidate search; a fully covered segment keeps its physical length as cost. This is an explainable preference, not a claim that an alternative is safer.
 
 If coverage is unknown, it stays unknown in the route metrics. The candidate search applies a fixed uncertainty cost rather than treating it as zero coverage.
+
+The web interface also offers a **Near mapped transit** preference. It applies an optional additional multiplier:
+
+```text
+preference-aware cost = lighting-aware cost × (1 + transit_preference × min(nearest_mapped_stop_m / 200, 1))
+```
+
+The default transit preference is zero, so the default comparison remains lighting-aware. A higher setting favours segments closer to a mapped GTFS stop, capped at 200 m. It is a proximity proxy only: it does not measure walking access, service availability, accessibility, or night-time operation.
 
 ## Candidate acceptance
 

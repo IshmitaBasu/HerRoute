@@ -1,13 +1,13 @@
 # HerRoute — Project Roadmap
 
-> **Project status:** Phases 1–5 implemented; Phase 6 is next.  
+> **Project status:** Phases 1–6 implemented; Phase 7 is next.
 > **Working title:** HerRoute — Women's Night-Time Mobility & Urban Infrastructure Analytics  
 > **Pilot location:** A limited area of **Berlin, Germany**, selected after reviewing data coverage  
 > **Primary goal:** A reproducible, explainable, infrastructure-aware walking-route comparison application
 
 ## Current implementation status
 
-As of 17 November 2026, the project has completed Phases 1–5:
+As of 17 November 2026, the project has completed Phases 1–6:
 
 | Phase | Status | Evidence |
 |---|---|---|
@@ -16,7 +16,8 @@ As of 17 November 2026, the project has completed Phases 1–5:
 | 3. Geospatial ETL | Complete | Tested segment features, coverage sensitivity results, and quality report. |
 | 4. Cloud and modelling | Complete | Private S3, Glue, Athena, dbt models, and 19 passing cloud data tests. |
 | 5. Routing algorithm | Complete | Tested shortest and lighting-aware routes, detour rejection, and two route-weight sensitivity checks. |
-| 6. Interactive app | Next | Build the local Streamlit route-comparison interface. |
+| 6. Interactive app | Complete | Local FastAPI web interface with AWS address suggestions, an OpenStreetMap route map, preference-aware comparisons, browser-only favourites and feedback, and copyable route links. |
+| 7. Testing and automation | Next | Add CI, controlled source-refresh automation, and monitoring. |
 
 The phase plans below preserve the original scope and acceptance criteria. Actual results, technical decisions, and validation evidence are maintained in the linked project documentation.
 
@@ -69,7 +70,7 @@ Real-time lamp operational status, predictive personal-safety scores, real-time 
 | 3. Geospatial ETL | 3 | 12–14 h | Clean network and segment-level infrastructure metrics |
 | 4. Cloud & modelling | 4 | 10–12 h | Tested AWS Athena and dbt analytical models |
 | 5. Routing algorithm | 5 | 16–20 h | Shortest-path and lighting-aware route comparison |
-| 6. Interactive app | 6 | 12–15 h | Functional local Streamlit demo |
+| 6. Interactive app | 6 | 12–15 h | Functional local FastAPI web demo |
 | 7. Testing & automation | 7 | 12–15 h | Automated tests, CI, scheduled data-refresh workflow |
 | 8. Deployment & portfolio | 8 | 10–12 h | Public demo, evaluation, README and case study |
 | **Total** | **8 weeks** | **90–110 h** | **Portfolio-ready MVP** |
@@ -84,7 +85,7 @@ flowchart LR
     W2 --> W3["Week 3<br/>Geospatial ETL"]
     W3 --> W4["Week 4<br/>AWS Athena + dbt"]
     W4 --> W5["Week 5<br/>Route algorithms"]
-    W5 --> W6["Week 6<br/>Streamlit MVP"]
+    W5 --> W6["Week 6<br/>FastAPI web MVP"]
     W6 --> W7["Week 7<br/>CI/CD + monitoring"]
     W7 --> W8["Week 8<br/>Deploy + evaluate"]
 ```

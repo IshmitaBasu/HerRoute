@@ -1,6 +1,6 @@
 # Architecture and contracts
 
-Status: Phase 5 complete. AWS analytics and tested local route comparisons are implemented; the interactive UI remains planned.
+Status: Phase 6 complete. AWS analytics, local route comparisons, and the local FastAPI browser interface are implemented. The route engine intentionally reads the matching local snapshot; a cloud-hosted route-serving layer and scheduled refresh remain future work.
 
 ```mermaid
 flowchart LR
@@ -12,11 +12,13 @@ flowchart LR
   E --> G[S3 + Glue Catalog + Athena + dbt marts]
   G --> F
   F --> H[NetworkX routing]
-  H --> I[Streamlit map and comparison]
+  H --> I[FastAPI local web API]
+  I --> K[Browser address suggestions, map, and comparison]
+  L[AWS Location Places] --> I
   J[CI and controlled refresh] --> B
 ```
 
-Batch processing handles network acquisition, projection, spatial joins and validation. The interactive app loads a matching graph and feature snapshot and performs routing only. The local app must remain usable without a live warehouse connection; the warehouse and its export are separately reproducible. A release manifest binds all artifacts to the same snapshot and records provenance and validation status.
+Batch processing handles network acquisition, projection, spatial joins and validation. The interactive app loads a matching graph and feature snapshot and performs routing only. AWS Location Places supplies live address suggestions, while the browser loads OpenStreetMap tiles for display. Favourites and feedback stay in browser local storage and are never sent to the server. The local app must remain usable without a live warehouse connection; the warehouse and its export are separately reproducible. A release manifest binds all artifacts to the same snapshot and records provenance and validation status.
 
 ## Proposed data contracts
 

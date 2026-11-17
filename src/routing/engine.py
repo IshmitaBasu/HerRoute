@@ -13,6 +13,8 @@ WALKING_SPEED_M_PER_MINUTE = 75.0
 DEFAULT_LIGHTING_PENALTY = 2.0
 DEFAULT_UNKNOWN_COVERAGE_PENALTY = 1.0
 DEFAULT_MAX_DETOUR_RATIO = 0.20
+DEFAULT_TRANSIT_PROXIMITY_PENALTY = 0.0
+TRANSIT_PROXIMITY_SCALE_M = 200.0
 
 
 @dataclass(frozen=True)
@@ -64,6 +66,7 @@ def build_route_graph(
     features: pd.DataFrame,
     lighting_penalty: float = DEFAULT_LIGHTING_PENALTY,
     unknown_coverage_penalty: float = DEFAULT_UNKNOWN_COVERAGE_PENALTY,
+    transit_proximity_penalty: float = DEFAULT_TRANSIT_PROXIMITY_PENALTY,
 ) -> nx.MultiDiGraph:
     """Join validated segment features to routing edges and assign route costs.
 
@@ -71,7 +74,7 @@ def build_route_graph(
     mapped-light coverage. Null coverage remains explicit and receives a fixed
     uncertainty penalty; it is never treated as zero coverage.
     """
-    if lighting_penalty < 0 or unknown_coverage_penalty < 0:
+    if lighting_penalty < 0 or unknown_coverage_penalty < 0 or transit_proximity_penalty < 0:
         raise ValueError("Routing penalties cannot be negative")
     required = {"segment_id", "length_m", "mapped_light_coverage_pct", "nearest_transit_stop_m"}
     missing = required.difference(features.columns)
@@ -103,6 +106,9 @@ def build_route_graph(
         else:
             coverage_pct = None
             lighting_cost = length_m * (1 + unknown_coverage_penalty)
+        transit_value = feature["nearest_transit_stop_m"]
+        transit_distance = _as_number(transit_value, "nearest_transit_stop_m") if pd.notna(transit_value) else TRANSIT_PROXIMITY_SCALE_M
+        transit_cost = lighting_cost * (1 + transit_proximity_penalty * min(transit_distance / TRANSIT_PROXIMITY_SCALE_M, 1))
 
         routed.add_edge(
             u,
@@ -112,9 +118,10 @@ def build_route_graph(
             segment_id=segment_id,
             length_m=length_m,
             mapped_light_coverage_pct=coverage_pct,
-            nearest_transit_stop_m=feature["nearest_transit_stop_m"],
+            nearest_transit_stop_m=transit_value,
             baseline_cost=length_m,
             lighting_cost=lighting_cost,
+            preference_cost=transit_cost,
         )
     if routed.number_of_edges() == 0:
         raise ValueError("No graph edges matched validated segment features")
@@ -184,6 +191,7 @@ def compare_routes(
     destination: Hashable,
     max_detour_ratio: float = DEFAULT_MAX_DETOUR_RATIO,
     lighting_penalty: float = DEFAULT_LIGHTING_PENALTY,
+    transit_proximity_penalty: float = DEFAULT_TRANSIT_PROXIMITY_PENALTY,
 ) -> RouteComparison:
     """Return a shortest route and a distinct lighting-aware route when feasible."""
     if not 0 <= max_detour_ratio:
@@ -191,10 +199,15 @@ def compare_routes(
     if origin == destination:
         raise ValueError("Origin and destination must be different")
 
-    routed = build_route_graph(graph, features, lighting_penalty=lighting_penalty)
+    routed = build_route_graph(
+        graph,
+        features,
+        lighting_penalty=lighting_penalty,
+        transit_proximity_penalty=transit_proximity_penalty,
+    )
     shortest_nodes, shortest_edges = _shortest_edge_path(routed, origin, destination, "baseline_cost")
     shortest = Route(shortest_nodes, shortest_edges, _metrics(routed, shortest_edges))
-    candidate_nodes, candidate_edges = _shortest_edge_path(routed, origin, destination, "lighting_cost")
+    candidate_nodes, candidate_edges = _shortest_edge_path(routed, origin, destination, "preference_cost")
     candidate = Route(candidate_nodes, candidate_edges, _metrics(routed, candidate_edges))
 
     if candidate.edges == shortest.edges:
