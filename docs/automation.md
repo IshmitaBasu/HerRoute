@@ -62,5 +62,6 @@ alter interactive routing data.
 The promotion workflow uses a separate `HerRouteGitHubPromotion` IAM role. Its
 policy is scoped to reading `candidates/`, creating new
 `staging/segment_features/` snapshots, the HerRoute Athena workgroup, Glue
-objects in the `herroute` database, and the dbt output prefixes. It needs the
+objects in the `herroute` database (including replacement of dbt-managed
+tables), and the dbt output prefixes. It needs the
 repository variable `HERROUTE_GITHUB_PROMOTION_ROLE_ARN`.

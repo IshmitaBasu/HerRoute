@@ -44,7 +44,7 @@
       "Sid": "UseHerRouteGlueObjectsOnly",
       "Effect": "Allow",
       "Action": [
-        "glue:BatchCreatePartition", "glue:BatchDeletePartition", "glue:CreateTable",
+        "glue:BatchCreatePartition", "glue:BatchDeletePartition", "glue:CreateTable", "glue:DeleteTable",
         "glue:GetDatabase", "glue:GetDatabases", "glue:GetPartitions", "glue:GetTable",
         "glue:GetTables", "glue:GetTableVersions", "glue:UpdateTable"
       ],
