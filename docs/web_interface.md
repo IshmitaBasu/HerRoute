@@ -11,7 +11,7 @@ HerRoute's interface is a FastAPI application for the Alexanderplatz pilot. It r
 
 ## Hosted-demo boundaries
 
-The Docker image contains only `walk.graphml` and `segment_features.parquet`, and `/health` provides a credential-free liveness response for the hosting platform. The selected Render free tier builds remotely and may sleep after idle time. Its encrypted `HERROUTE_LOCATION_API_KEY` secret is used server-side for the two Places actions required by the interface: `Autocomplete` and `GetPlace`. It is not exposed to browser JavaScript. The public demo receives no AWS account credentials and cannot read or modify S3, Glue, Athena, or dbt resources.
+The Docker image contains only `walk.graphml` and `segment_features.parquet`, sourced from the versioned `data/release/` deployment snapshot, and `/health` provides a credential-free liveness response for the hosting platform. The selected Render free tier builds remotely and may sleep after idle time. Its encrypted `HERROUTE_LOCATION_API_KEY` secret is used server-side for the two Places actions required by the interface: `Autocomplete` and `GetPlace`. It is not exposed to browser JavaScript. The public demo receives no AWS account credentials and cannot read or modify S3, Glue, Athena, or dbt resources.
 
 ## Preferences and explanation
 

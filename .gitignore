@@ -21,6 +21,10 @@ dbt/target/
 data/raw/
 data/processed/
 data/warehouse/
+# The small, approved public-demo routing snapshot is intentionally versioned.
+!data/release/
+!data/release/walk.graphml
+!data/release/segment_features.parquet
 cache/
 
 # Editor and OS files

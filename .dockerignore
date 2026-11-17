@@ -14,7 +14,8 @@ infra/
 sql/
 tests/
 data/raw/*
-!data/raw/walk.graphml
 data/processed/*
-!data/processed/segment_features.parquet
 data/warehouse/
+!data/release/
+!data/release/walk.graphml
+!data/release/segment_features.parquet

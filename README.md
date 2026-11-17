@@ -18,7 +18,7 @@ python -m venv .venv
 python -m pip install -r requirements.txt
 ```
 
-The large routing artifacts are intentionally not stored in Git. Build the local Berlin pilot snapshot before starting the app:
+Raw and processed data artifacts are intentionally not stored in Git. Build the local Berlin pilot snapshot before starting the app:
 
 ```powershell
 python -m src.ingestion.download
@@ -38,7 +38,7 @@ Downloads require internet access and may be large. Data and the OSMnx request c
 
 ## Public-demo deployment design
 
-The public demo is packaged as a Docker image that contains only the approved `walk.graphml` and `segment_features.parquet` routing artifacts. A health endpoint is available at `/health`. Render's free web-service tier builds the image remotely, so a local Docker installation and its disk use are unnecessary. It may sleep after idle time; this is acceptable for a portfolio demo but not a production availability guarantee.
+The public demo is packaged as a Docker image that contains only the approved `walk.graphml` and `segment_features.parquet` routing artifacts. Those two files are copied into the small, versioned `data/release/` deployment snapshot so GitHub and Render can build the image without AWS data access. A health endpoint is available at `/health`. Render's free web-service tier builds the image remotely, so a local Docker installation and its disk use are unnecessary. It may sleep after idle time; this is acceptable for a portfolio demo but not a production availability guarantee.
 
 The hosted server receives `HERROUTE_LOCATION_API_KEY` as an encrypted host secret. This is a narrowly scoped Amazon Location API key that permits only `geo-places:Autocomplete` and `geo-places:GetPlace` against the default Places provider. It remains on the server and is never sent to browsers, committed to Git, or substituted for AWS account credentials. Local development continues to use the developer's authenticated AWS identity. The public app does not receive S3, Glue, Athena, dbt, or warehouse credentials.
 

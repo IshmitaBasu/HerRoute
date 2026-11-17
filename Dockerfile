@@ -14,8 +14,8 @@ COPY requirements.txt ./
 RUN python -m pip install --no-cache-dir -r requirements.txt
 
 COPY src ./src
-COPY data/raw/walk.graphml data/raw/walk.graphml
-COPY data/processed/segment_features.parquet data/processed/segment_features.parquet
+COPY data/release/walk.graphml data/raw/walk.graphml
+COPY data/release/segment_features.parquet data/processed/segment_features.parquet
 
 RUN useradd --create-home appuser
 USER appuser

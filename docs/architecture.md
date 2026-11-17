@@ -19,7 +19,7 @@ flowchart LR
   J[CI and controlled refresh] --> B
 ```
 
-Batch processing handles network acquisition, projection, spatial joins and validation. The interactive app loads a matching graph and feature snapshot and performs routing only. AWS Location Places supplies live address suggestions, while the browser loads OpenStreetMap tiles for display. Favourites and feedback stay in browser local storage and are never sent to the server. The public-demo container contains the two routing artifacts it needs, but no AWS account credentials and no warehouse data-access permissions. Its server-side Amazon Location API key is limited to autocomplete and place retrieval. The warehouse and its export are separately reproducible. A release manifest binds artifacts to a snapshot and records provenance and validation status.
+Batch processing handles network acquisition, projection, spatial joins and validation. The interactive app loads a matching graph and feature snapshot and performs routing only. AWS Location Places supplies live address suggestions, while the browser loads OpenStreetMap tiles for display. Favourites and feedback stay in browser local storage and are never sent to the server. The public-demo container receives the two routing artifacts from the versioned `data/release/` snapshot, but no AWS account credentials and no warehouse data-access permissions. Its server-side Amazon Location API key is limited to autocomplete and place retrieval. The warehouse and its export are separately reproducible. A release manifest binds artifacts to a snapshot and records provenance and validation status.
 
 ## Proposed data contracts
 
