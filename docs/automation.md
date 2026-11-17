@@ -44,12 +44,18 @@ operator supplies the exact candidate key and types `PROMOTE`. The workflow
 downloads the candidate from S3 and revalidates its manifest, row count,
 unique IDs, date, lengths, coverage range, and transit-distance range before
 copying it to a new immutable staging prefix. It refuses to overwrite a
-same-day snapshot.
+same-day snapshot. If a previous workflow reached Athena activation but stopped
+before dbt validation, a rerun can only resume when Glue already points to that
+same staging prefix; it skips copying and activation, then performs the missing
+dbt build. A pre-existing staging prefix that is not the current Glue location
+still fails rather than being overwritten.
 
 Only then does it move Athena's `segment_features` table to the new prefix and
 run `dbt build` with short-lived GitHub OIDC credentials. If the dbt build
 fails after the source location changes, the workflow restores the previous
-Athena source location. The local FastAPI route engine remains on its own
+Athena source location. Athena query completion is polled explicitly rather
+than relying on an AWS CLI waiter, so the workflow works across CLI releases.
+The local FastAPI route engine remains on its own
 approved graph and feature snapshot; warehouse promotion does not silently
 alter interactive routing data.
 

@@ -71,30 +71,53 @@ jobs:
           snapshot_date=$(python -c "import json; print(json.load(open('candidate/validation.json'))['snapshot_date'])")
           echo "snapshot_date=${snapshot_date}" >> "$GITHUB_OUTPUT"
 
-      - name: Check new staging location and save rollback location
+      - name: Check staging location and save rollback location
         id: locations
         shell: bash
         run: |
           target_prefix="staging/segment_features/snapshot=${{ steps.candidate.outputs.snapshot_date }}/"
+          target_location="s3://${HERROUTE_S3_BUCKET}/${target_prefix}data/"
           key_count=$(aws s3api list-objects-v2 --bucket "$HERROUTE_S3_BUCKET" --prefix "$target_prefix" --max-keys 1 --query "KeyCount" --output text)
-          test "$key_count" = "0" || { echo "A staging snapshot already exists for this date; refusing to overwrite it."; exit 1; }
-          previous_location=$(aws glue get-table --database-name herroute --name segment_features --query "Table.StorageDescriptor.Location" --output text)
+          current_location=$(aws glue get-table --database-name herroute --name segment_features --query "Table.StorageDescriptor.Location" --output text)
+          if test "$key_count" != "0"; then
+            test "$current_location" = "$target_location" || { echo "A staging snapshot already exists for this date; refusing to overwrite it."; exit 1; }
+            echo "promotion_mode=resume" >> "$GITHUB_OUTPUT"
+            echo "Resuming validation of the already activated snapshot."
+          else
+            echo "promotion_mode=new" >> "$GITHUB_OUTPUT"
+            echo "previous_location=${current_location}" >> "$GITHUB_OUTPUT"
+          fi
           echo "target_prefix=${target_prefix}" >> "$GITHUB_OUTPUT"
-          echo "previous_location=${previous_location}" >> "$GITHUB_OUTPUT"
 
       - name: Copy validated candidate into a new staging snapshot
+        if: steps.locations.outputs.promotion_mode == 'new'
         run: |
           aws s3 cp candidate/segment_features.parquet "s3://${HERROUTE_S3_BUCKET}/${{ steps.locations.outputs.target_prefix }}data/segment_features.parquet"
           aws s3 cp candidate/manifest.json "s3://${HERROUTE_S3_BUCKET}/${{ steps.locations.outputs.target_prefix }}manifest.json"
 
       - name: Point Athena source to validated snapshot
         id: activate
+        if: steps.locations.outputs.promotion_mode == 'new'
         shell: bash
         run: |
+          wait_for_athena_query() {
+            local execution_id="$1"
+            while true; do
+              state=$(aws athena get-query-execution --query-execution-id "$execution_id" --query "QueryExecution.Status.State" --output text)
+              case "$state" in
+                SUCCEEDED) return 0 ;;
+                FAILED|CANCELLED)
+                  aws athena get-query-execution --query-execution-id "$execution_id" --query "QueryExecution.Status.StateChangeReason" --output text
+                  return 1
+                  ;;
+                *) sleep 2 ;;
+              esac
+            done
+          }
           location="s3://${HERROUTE_S3_BUCKET}/${{ steps.locations.outputs.target_prefix }}data/"
           query="ALTER TABLE herroute.segment_features SET LOCATION '${location}'"
           execution_id=$(aws athena start-query-execution --work-group herroute --query-execution-context Database=herroute --query-string "$query" --query "QueryExecutionId" --output text)
-          aws athena wait query-succeeded --query-execution-id "$execution_id"
+          wait_for_athena_query "$execution_id"
           echo "activated=true" >> "$GITHUB_OUTPUT"
 
       - name: Rebuild dbt models and tests with OIDC credentials
@@ -102,12 +125,26 @@ jobs:
         run: dbt build --profiles-dir ../.github/dbt
 
       - name: Restore previous Athena source when post-promotion validation fails
-        if: failure() && steps.activate.outputs.activated == 'true'
+        if: failure() && steps.locations.outputs.promotion_mode == 'new' && steps.activate.outputs.activated == 'true'
         shell: bash
         run: |
+          wait_for_athena_query() {
+            local execution_id="$1"
+            while true; do
+              state=$(aws athena get-query-execution --query-execution-id "$execution_id" --query "QueryExecution.Status.State" --output text)
+              case "$state" in
+                SUCCEEDED) return 0 ;;
+                FAILED|CANCELLED)
+                  aws athena get-query-execution --query-execution-id "$execution_id" --query "QueryExecution.Status.StateChangeReason" --output text
+                  return 1
+                  ;;
+                *) sleep 2 ;;
+              esac
+            done
+          }
           query="ALTER TABLE herroute.segment_features SET LOCATION '${{ steps.locations.outputs.previous_location }}'"
           execution_id=$(aws athena start-query-execution --work-group herroute --query-execution-context Database=herroute --query-string "$query" --query "QueryExecutionId" --output text)
-          aws athena wait query-succeeded --query-execution-id "$execution_id"
+          wait_for_athena_query "$execution_id"
 
       - name: Report approved warehouse snapshot
         run: |
