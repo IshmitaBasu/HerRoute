@@ -2,7 +2,7 @@
 
 HerRoute is a Berlin walking-route comparison app. It compares a shortest route with a preference-aware alternative that can favour proximity to mapped public lighting and mapped transit stops, when a meaningful alternative exists. Mapped lights are a proxy for infrastructure, not a measure or guarantee of safety or actual illumination.
 
-Phases 1–7 are complete and Phase 8 deployment is in progress. The project has a validated raw snapshot and processed walking-segment features for the Alexanderplatz pilot, plus a private S3, Glue, Athena, and dbt analytics layer. The browser interface uses AWS Location Places for live address suggestions, renders route alternatives on an OpenStreetMap basemap, and keeps favourites and feedback only in the user's browser. The route engine intentionally uses a matching graph and feature snapshot; warehouse promotion does not silently change interactive routes.
+Phases 1–7 are complete and Phase 8 release work is in progress. The public demo is live at [herroute-af9y.onrender.com](https://herroute-af9y.onrender.com). The project has a validated raw snapshot and processed walking-segment features for the Alexanderplatz pilot, plus a private S3, Glue, Athena, and dbt analytics layer. The browser interface uses AWS Location Places for live address suggestions, renders route alternatives on an OpenStreetMap basemap, and keeps favourites and feedback only in the user's browser. The route engine intentionally uses a matching graph and feature snapshot; warehouse promotion does not silently change interactive routes.
 
 Every push and pull request to `main` runs the offline Python test suite without cloud credentials or live data downloads. Candidate refresh and Athena/dbt promotion are separate reviewed GitHub Actions workflows that use short-lived GitHub OIDC roles.
 
@@ -41,6 +41,8 @@ Downloads require internet access and may be large. Data and the OSMnx request c
 The public demo is packaged as a Docker image that contains only the approved `walk.graphml` and `segment_features.parquet` routing artifacts. Those two files are copied into the small, versioned `data/release/` deployment snapshot so GitHub and Render can build the image without AWS data access. A health endpoint is available at `/health`. Render's free web-service tier builds the image remotely, so a local Docker installation and its disk use are unnecessary. It may sleep after idle time; this is acceptable for a portfolio demo but not a production availability guarantee.
 
 The hosted server receives `HERROUTE_LOCATION_API_KEY` as an encrypted host secret. This is a narrowly scoped Amazon Location API key that permits only `geo-places:Autocomplete` and `geo-places:GetPlace` against the default Places provider. It remains on the server and is never sent to browsers, committed to Git, or substituted for AWS account credentials. Local development continues to use the developer's authenticated AWS identity. The public app does not receive S3, Glue, Athena, dbt, or warehouse credentials.
+
+The deployed demo was verified with fresh Amazon Location address selections and a completed route comparison. It is a portfolio demonstration, so the free Render service can sleep after inactivity and the first request after that may take longer.
 
 - [Requirements and success criteria](docs/requirements.md)
 - [Architecture and data contracts](docs/architecture.md)

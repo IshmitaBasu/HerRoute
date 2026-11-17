@@ -5,9 +5,9 @@
 > **Pilot location:** A limited area of **Berlin, Germany**, selected after reviewing data coverage  
 > **Primary goal:** A reproducible, explainable, infrastructure-aware walking-route comparison application
 
-> **Current status:** Phases 1–7 are implemented; Phase 8 is next.
+> **Current status:** Phases 1–7 are implemented; Phase 8 release and evaluation are in progress.
 
-> **Active phase (authoritative):** Phase 8 is in progress. The app is containerized for a Render free-tier public demo, uses a server-side scoped Amazon Location API key for address selection, and awaits its first live deployment and evaluation.
+> **Active phase (authoritative):** Phase 8 is in progress. The public demo is live at `https://herroute-af9y.onrender.com`, uses a server-side scoped Amazon Location API key for address selection, and now awaits evaluation and portfolio evidence.
 
 ## Current implementation status
 
@@ -22,7 +22,7 @@ As of 17 November 2026, the project has completed Phases 1–6:
 | 5. Routing algorithm | Complete | Tested shortest and lighting-aware routes, detour rejection, and two route-weight sensitivity checks. |
 | 6. Interactive app | Complete | Local FastAPI web interface with AWS address suggestions, an OpenStreetMap route map, preference-aware comparisons, browser-only favourites and feedback, and copyable route links. |
 | 7. Testing and automation | Complete | GitHub Actions CI, isolated candidate refresh, GitHub OIDC roles, failure issues, controlled Athena/dbt promotion, and documented recovery behaviour. |
-| 8. Deployment and portfolio | In progress | Docker packaging, health endpoint, Render free-tier deployment design, and a server-side scoped AWS Location API key are ready; public deployment and evaluation remain. |
+| 8. Deployment and portfolio | In progress | The Render free-tier public demo, health endpoint, and scoped server-side AWS Location key are live; evaluation and portfolio evidence remain. |
 
 The phase plans below preserve the original scope and acceptance criteria. Actual results, technical decisions, and validation evidence are maintained in the linked project documentation.
 
@@ -444,7 +444,7 @@ flowchart LR
 **Work to be done**
 
 - [x] Package the FastAPI application as a Docker image, with a health endpoint and a scoped server-side Places API-key option.
-- [ ] Deploy the FastAPI application to Render's free web-service tier.
+- [x] Deploy the FastAPI application to Render's free web-service tier at `https://herroute-af9y.onrender.com` and verify live address search and route comparison.
 - [ ] Check external access, resource consumption and response time.
 - [ ] Evaluate **20–30** start/end pairs within the pilot region.
 - [ ] Compare baseline and alternative route outcomes.

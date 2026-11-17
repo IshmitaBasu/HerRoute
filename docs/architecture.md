@@ -1,6 +1,6 @@
 # Architecture and contracts
 
-Status: Phases 1–7 are complete. Phase 8 public-demo deployment is in progress. AWS analytics, local route comparisons, a FastAPI browser interface, container packaging, and controlled refresh/promotion are implemented. The route engine intentionally reads the matching local snapshot; warehouse promotion does not change it.
+Status: Phases 1–7 are complete. The Phase 8 public demo is live at `https://herroute-af9y.onrender.com`; evaluation and portfolio evidence remain. AWS analytics, local route comparisons, a FastAPI browser interface, container packaging, and controlled refresh/promotion are implemented. The route engine intentionally reads the matching local snapshot; warehouse promotion does not change it.
 
 ```mermaid
 flowchart LR
