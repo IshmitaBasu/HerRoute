@@ -1,0 +1,39 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "ReadBucketLocation",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketLocation"
+      ],
+      "Resource": "arn:aws:s3:::herroute-627511992462-eu-central-1"
+    },
+    {
+      "Sid": "ListCandidateObjectsOnly",
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": "arn:aws:s3:::herroute-627511992462-eu-central-1",
+      "Condition": {
+        "StringLike": {
+          "s3:prefix": [
+            "candidates/*"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "WriteCandidateObjectsOnly",
+      "Effect": "Allow",
+      "Action": [
+        "s3:AbortMultipartUpload",
+        "s3:GetObject",
+        "s3:ListMultipartUploadParts",
+        "s3:PutObject"
+      ],
+      "Resource": "arn:aws:s3:::herroute-627511992462-eu-central-1/candidates/*"
+    }
+  ]
+}

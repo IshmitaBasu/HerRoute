@@ -1,0 +1,112 @@
+name: Refresh candidate data
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+concurrency:
+  group: herroute-candidate-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Build and validate candidate snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      AWS_REGION: eu-central-1
+      HERROUTE_S3_BUCKET: ${{ vars.HERROUTE_S3_BUCKET }}
+      AWS_ROLE_ARN: ${{ vars.HERROUTE_GITHUB_OIDC_ROLE_ARN }}
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+
+      - name: Check refresh configuration
+        run: |
+          test -n "$HERROUTE_S3_BUCKET" || { echo "Set the HERROUTE_S3_BUCKET repository variable."; exit 1; }
+          test -n "$AWS_ROLE_ARN" || { echo "Set the HERROUTE_GITHUB_OIDC_ROLE_ARN repository variable."; exit 1; }
+
+      - name: Configure AWS credentials through GitHub OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Build isolated candidate snapshot
+        id: candidate
+        shell: bash
+        run: |
+          candidate_key="run-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          candidate_dir="data/candidates/${candidate_key}"
+          echo "key=${candidate_key}" >> "$GITHUB_OUTPUT"
+          echo "directory=${candidate_dir}" >> "$GITHUB_OUTPUT"
+          python -m src.ingestion.download --output "${candidate_dir}/raw"
+          python -m src.geospatial.process --raw "${candidate_dir}/raw" --output "${candidate_dir}/processed"
+          python -m src.warehouse.export \
+            --source "${candidate_dir}/processed/segment_features.parquet" \
+            --manifest "${candidate_dir}/processed/manifest.json" \
+            --destination "${candidate_dir}/warehouse/segment_features.parquet"
+
+      - name: Re-run offline validations
+        run: python -m pytest -q
+
+      - name: Upload validated candidate to private S3
+        run: |
+          aws s3 sync "${{ steps.candidate.outputs.directory }}" \
+            "s3://${HERROUTE_S3_BUCKET}/candidates/${{ steps.candidate.outputs.key }}/" \
+            --only-show-errors
+
+      - name: Report candidate location
+        run: echo "Validated candidate: s3://${HERROUTE_S3_BUCKET}/candidates/${{ steps.candidate.outputs.key }}/"
+
+      - name: Open one issue when a refresh fails
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'Data refresh failed';
+            try {
+              await github.rest.issues.getLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'data-refresh',
+              });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              await github.rest.issues.createLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                name: 'data-refresh',
+                color: 'B60205',
+                description: 'An automated HerRoute candidate data refresh failed.',
+              });
+            }
+            const existing = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'data-refresh',
+              per_page: 100,
+            });
+            if (!existing.data.some(issue => issue.title === title)) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                labels: ['data-refresh'],
+                body: `The candidate refresh run ${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId} failed. No production snapshot was changed.`,
+              });
+            }

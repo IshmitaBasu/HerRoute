@@ -205,16 +205,23 @@ def write_outputs(nodes: gpd.GeoDataFrame, features: gpd.GeoDataFrame, report: d
     manifest.write_text(json.dumps(report, indent=2), encoding="utf-8")
 
 
-def main(light_buffer_m: float = LIGHT_BUFFER_M, output: Path = OUT) -> None:
-    raw_manifest = RAW / "manifest.json"
-    required = [RAW / "lights.geojson", RAW / "stops.csv", RAW / "walk.graphml", raw_manifest]
+def main(
+    light_buffer_m: float = LIGHT_BUFFER_M,
+    output: Path | None = None,
+    raw: Path | None = None,
+) -> None:
+    """Build one processed snapshot without changing the current application snapshot."""
+    raw_directory = raw or RAW
+    output_directory = output or OUT
+    raw_manifest = raw_directory / "manifest.json"
+    required = [raw_directory / "lights.geojson", raw_directory / "stops.csv", raw_directory / "walk.graphml", raw_manifest]
     missing = [str(path) for path in required if not path.exists()]
     if missing:
         raise FileNotFoundError("Raw snapshot is incomplete: " + ", ".join(missing))
     source_manifest = json.loads(raw_manifest.read_text(encoding="utf-8"))
-    lights = load_lights(RAW / "lights.geojson")
-    stops = load_stops(RAW / "stops.csv")
-    graph = ox.load_graphml(RAW / "walk.graphml")
+    lights = load_lights(raw_directory / "lights.geojson")
+    stops = load_stops(raw_directory / "stops.csv")
+    graph = ox.load_graphml(raw_directory / "walk.graphml")
     nodes, edges, connectivity = graph_frames(graph)
     features = calculate_features(edges, lights, stops, light_buffer_m=light_buffer_m)
     report = {
@@ -234,13 +241,14 @@ def main(light_buffer_m: float = LIGHT_BUFFER_M, output: Path = OUT) -> None:
             "Nearest transit-stop distance is Euclidean distance from an edge geometry to a mapped stop point; it is not a walking-access or service-availability measure.",
         ],
     }
-    write_outputs(nodes, features, report, output)
-    print(f"Validated processed snapshot: {output / 'manifest.json'}")
+    write_outputs(nodes, features, report, output_directory)
+    print(f"Validated processed snapshot: {output_directory / 'manifest.json'}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--light-buffer-m", type=float, default=LIGHT_BUFFER_M)
     parser.add_argument("--output", type=Path, default=OUT)
+    parser.add_argument("--raw", type=Path, default=RAW, help="Validated raw snapshot to process")
     arguments = parser.parse_args()
-    main(arguments.light_buffer_m, arguments.output)
+    main(arguments.light_buffer_m, arguments.output, arguments.raw)

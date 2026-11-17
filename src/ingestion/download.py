@@ -119,21 +119,27 @@ def download_network(directory):
             "url": ox.settings.overpass_url, "file": path.name, "sha256": checksum(path)}
 
 
-def main():
+def main(output: Path | None = None):
     # A manifest is written only after every source has succeeded. A failed run must not
     # leave a manifest that could be mistaken for a validated snapshot.
-    OUT.mkdir(parents=True, exist_ok=True)
-    manifest_path = OUT / "manifest.json"
+    directory = output or OUT
+    directory.mkdir(parents=True, exist_ok=True)
+    manifest_path = directory / "manifest.json"
     manifest_path.unlink(missing_ok=True)
     result = {"retrieved_utc": datetime.now(timezone.utc).isoformat(), "pilot_bounds_wgs84": PILOT,
               "download_bounds_wgs84": BOUNDS, "source_data_dates": "unknown unless provided by source"}
     for key, function in (("lights", download_lights), ("stops", download_stops), ("network", download_network)):
         print(f"Downloading {key}...", flush=True)
-        result[key] = function(OUT)
+        result[key] = function(directory)
         print(json.dumps(result[key]), flush=True)
     manifest_path.write_text(json.dumps(result, indent=2), encoding="utf-8")
     print(f"Validated source manifest: {manifest_path}")
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=OUT, help="Directory for this candidate raw snapshot")
+    arguments = parser.parse_args()
+    main(arguments.output)
