@@ -1,3 +1,6 @@
+import pytest
+import requests
+
 from src.geocoding.aws_places import autocomplete_addresses, resolve_address
 
 
@@ -77,3 +80,21 @@ def test_hosted_api_key_is_sent_server_side_for_places_calls(monkeypatch):
     assert captured["post"]["json"]["IntendedUse"] == "SingleUse"
     assert captured["get_url"].endswith("/v2/place/chosen")
     assert captured["get"]["params"]["key"] == "scoped-key"
+
+
+def test_hosted_api_key_error_reports_status_without_revealing_key(monkeypatch):
+    class RejectedResponse:
+        status_code = 403
+
+        def raise_for_status(self):
+            raise requests.HTTPError(response=self)
+
+    monkeypatch.setenv("HERROUTE_LOCATION_API_KEY", "private-key-value")
+    monkeypatch.setattr(
+        "src.geocoding.aws_places.requests.get", lambda *args, **kwargs: RejectedResponse()
+    )
+
+    with pytest.raises(ValueError, match="HTTP 403") as error:
+        resolve_address("chosen")
+
+    assert "private-key-value" not in str(error.value)

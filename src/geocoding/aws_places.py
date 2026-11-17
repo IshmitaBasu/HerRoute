@@ -27,6 +27,18 @@ class AddressSuggestion:
     label: str
 
 
+def _hosted_request_error(action: str, error: requests.RequestException) -> ValueError:
+    """Return an actionable, key-safe error for the hosted API-key path."""
+    response = getattr(error, "response", None)
+    if response is None:
+        detail = "could not reach Amazon Location"
+    else:
+        detail = f"was rejected by Amazon Location (HTTP {response.status_code})"
+    return ValueError(
+        f"{action} {detail}; check the hosted Location API key and its allowed actions."
+    )
+
+
 def _client():
     """Use the user's existing AWS CLI login in the Frankfurt region by default."""
     return boto3.client("geo-places", region_name=os.getenv("AWS_REGION", DEFAULT_REGION))
@@ -100,7 +112,7 @@ def autocomplete_addresses(query: str, client: Any | None = None) -> list[Addres
                 Filter={"BoundingBox": list(PILOT), "IncludeCountries": ["DE"]},
             )
     except requests.RequestException as error:
-        raise ValueError("Address suggestions are unavailable; check the hosted Location API key.") from error
+        raise _hosted_request_error("Address suggestions", error) from error
     except (BotoCoreError, ClientError) as error:
         raise ValueError(f"Address suggestions are unavailable: {error}") from error
 
@@ -131,7 +143,7 @@ def resolve_address(place_id: str, client: Any | None = None) -> PlaceMatch:
                 IntendedUse="SingleUse",
             )
     except requests.RequestException as error:
-        raise ValueError("Selected address is unavailable; check the hosted Location API key.") from error
+        raise _hosted_request_error("Selected address", error) from error
     except (BotoCoreError, ClientError) as error:
         raise ValueError(f"Selected address is unavailable: {error}") from error
 
