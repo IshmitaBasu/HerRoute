@@ -17,7 +17,9 @@ snapshot, the Athena external-table location, or the current dbt models. A
 failed download, transformation, validation, test, or upload therefore cannot
 replace the approved data. The workflow has a 30-minute time limit, permits
 only one concurrent refresh, and opens one labelled GitHub issue for an
-unresolved failure.
+unresolved failure. Public Overpass capacity errors during walking-network
+download are retried up to four times with 15, 30, and 60-second waits before
+the candidate run fails clearly.
 
 AWS authentication uses GitHub OpenID Connect rather than saved access keys.
 The repository configuration requires two non-secret Actions variables:
@@ -28,6 +30,9 @@ The repository configuration requires two non-secret Actions variables:
 | `HERROUTE_GITHUB_OIDC_ROLE_ARN` | ARN of the narrowly scoped role GitHub Actions may assume |
 
 The assumed role must allow writing only to the bucket's `candidates/` prefix
-and must trust this repository's `main` branch. Candidate promotion remains a
-separate, reviewed operation. After one candidate refresh is successful and
-the cost and source behaviour are reviewed, a monthly schedule can be added.
+and must trust this repository's `main` branch. This repository uses GitHub's
+custom OIDC subject template, which includes its immutable owner and repository
+IDs; the committed trust policy contains the exact required `sub` claim.
+Candidate promotion remains a separate, reviewed operation. After one candidate
+refresh is successful and the cost and source behaviour are reviewed, a monthly
+schedule can be added.

@@ -3,6 +3,7 @@
 import csv
 import hashlib
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from zipfile import ZipFile
@@ -10,6 +11,7 @@ from zipfile import ZipFile
 import networkx as nx
 import osmnx as ox
 import requests
+from osmnx._errors import ResponseStatusCodeError
 
 BOUNDS = (13.390, 52.512, 13.435, 52.533)  # buffered candidate: west, south, east, north
 PILOT = (13.395, 52.515, 13.430, 52.530)
@@ -17,6 +19,8 @@ OUT = Path("data/raw")
 WFS = "https://gdi.berlin.de/services/wfs/beleuchtung"
 GTFS = "https://unternehmen.vbb.de/gtfs"
 HEADERS = {"User-Agent": "HerRoute research prototype (public data ingestion)"}
+NETWORK_MAX_ATTEMPTS = 4
+NETWORK_RETRY_DELAY_SECONDS = 15
 
 
 def within(lon, lat, bounds=BOUNDS):
@@ -102,10 +106,33 @@ def download_stops(directory):
             "archive_sha256": checksum(zip_path)}
 
 
-def download_network(directory):
+def download_network(
+    directory: Path,
+    max_attempts: int = NETWORK_MAX_ATTEMPTS,
+    sleep=time.sleep,
+):
+    """Download the network with bounded retries for public Overpass capacity errors."""
+    if max_attempts < 1:
+        raise ValueError("Network download requires at least one attempt")
     ox.settings.requests_timeout = 180
     ox.settings.http_user_agent = HEADERS["User-Agent"]
-    graph = ox.graph_from_bbox(BOUNDS, network_type="walk", retain_all=True)
+    for attempt in range(1, max_attempts + 1):
+        try:
+            graph = ox.graph_from_bbox(BOUNDS, network_type="walk", retain_all=True)
+            break
+        except (ResponseStatusCodeError, requests.RequestException) as error:
+            if attempt == max_attempts:
+                raise RuntimeError(
+                    f"Walking-network download failed after {max_attempts} attempts; "
+                    "the public Overpass service may be at capacity."
+                ) from error
+            delay_seconds = NETWORK_RETRY_DELAY_SECONDS * 2 ** (attempt - 1)
+            print(
+                f"Walking-network download attempt {attempt}/{max_attempts} failed: {error}. "
+                f"Retrying in {delay_seconds} seconds...",
+                flush=True,
+            )
+            sleep(delay_seconds)
     if not graph.number_of_nodes() or not graph.number_of_edges():
         raise ValueError("Empty walking network")
     for _, attrs in graph.nodes(data=True):

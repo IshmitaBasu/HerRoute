@@ -4,6 +4,8 @@ import zipfile
 from io import BytesIO
 
 import pytest
+import networkx as nx
+from osmnx._errors import ResponseStatusCodeError
 
 from src.ingestion import download
 
@@ -61,3 +63,27 @@ def test_failed_run_does_not_leave_old_manifest(monkeypatch, tmp_path):
     with pytest.raises(ValueError):
         download.main()
     assert not (tmp_path / "manifest.json").exists()
+
+
+def test_network_download_retries_temporary_overpass_capacity_error(monkeypatch, tmp_path):
+    graph = nx.MultiDiGraph()
+    graph.graph["crs"] = "EPSG:4326"
+    graph.add_node(1, x=13.4, y=52.52)
+    graph.add_node(2, x=13.401, y=52.521)
+    graph.add_edge(1, 2, key=0)
+    attempts = []
+
+    def fetch_graph(*args, **kwargs):
+        attempts.append(1)
+        if len(attempts) < 3:
+            raise ResponseStatusCodeError("Overpass busy")
+        return graph
+
+    delays = []
+    monkeypatch.setattr(download.ox, "graph_from_bbox", fetch_graph)
+
+    result = download.download_network(tmp_path, sleep=delays.append)
+
+    assert result["nodes"] == 2
+    assert len(attempts) == 3
+    assert delays == [15, 30]
