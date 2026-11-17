@@ -55,7 +55,20 @@ The technical work mattered: reproducibility, tests, access control, validation,
 
 ## Visual evidence
 
-The final release will add:
+### Route controls and theme
 
-1. a live route-comparison screenshot with the shortest and lighting-aware routes visible;
-2. a GitHub Actions success screenshot showing the automated refresh or promotion workflow.
+![Light-mode address selection and walking preferences](assets/app-light-mode.png)
+
+The interface supports light and dark themes, maps user choices to documented routing controls, and shows a clear loading state while the comparison runs.
+
+### Route map
+
+![Shortest and preference-aware routes on the map](assets/app-route-map.png)
+
+The map shows the actual geometry of both route options, selected endpoints, and a legend. The user can inspect the spatial trade-off instead of receiving an unexplained recommendation.
+
+### Route comparison and private controls
+
+![Route metrics, saved places, and private route notes](assets/app-route-details.png)
+
+The result cards quantify the route difference. Saved places, theme preference, and private route notes remain in browser storage and are not sent to the service.

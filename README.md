@@ -48,6 +48,20 @@ The deployed demo was verified with fresh Amazon Location address selections and
 
 On 17 November 2026, a fixed 25-journey Alexanderplatz evaluation completed 24 route comparisons. Twenty-two of those 24 comparisons (91.67%) returned a distinct, feasible lighting-aware alternative. Across those alternatives, the median extra distance was 66.35 m (2.97%), while median mapped-light coverage increased by 6.08 percentage points. One journey could not be routed because its snapped graph nodes had no directed walking path; this is retained as a graph-connectivity limitation. Full method, results and limits are in the [pilot evaluation](docs/evaluation.md).
 
+## Interface
+
+![HerRoute light-mode route controls](docs/assets/app-light-mode.png)
+
+*Address selection, route preferences, and the light-theme option.*
+
+![HerRoute route map](docs/assets/app-route-map.png)
+
+*The shortest and preference-aware routes on the OpenStreetMap basemap.*
+
+![HerRoute results and local-only personal controls](docs/assets/app-route-details.png)
+
+*Route trade-offs, labelled saved places, and private browser-only route notes.*
+
 - [Requirements and success criteria](docs/requirements.md)
 - [Architecture and data contracts](docs/architecture.md)
 - [Assumptions and pilot-area decision](docs/assumptions.md)
